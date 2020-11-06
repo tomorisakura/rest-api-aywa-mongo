@@ -1,14 +1,20 @@
 const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Schema.Types;
 
 const pets = mongoose.Schema({
-    clinic_uniqname : {
-        type : String,
-        required : true
+    clinic : {
+        type : ObjectId,
+        ref : 'Clinics'
     },
-    jenis : {
-        type : String,
-        required : true
+    types : {
+        type : ObjectId,
+        ref : 'Types'
     },
+    picture : [{
+        pic_name : String,
+        pic_url : String,
+        required : false
+    }],
     nama_peliharaan : {
         type : String,
         required : true
@@ -19,7 +25,7 @@ const pets = mongoose.Schema({
     },
     pemilik_lama : {
         type : String,
-        required : true
+        required : true,
     },
     jenis_kelamin : {
         type : String,

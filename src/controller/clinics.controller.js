@@ -1,31 +1,12 @@
 const Clincs = require('../model/clinics');
 const bcrypt = require('bcrypt');
+const Generate = require('../helpers/generate');
+const clinics = require('../model/clinics');
 
 const salt = bcrypt.genSaltSync(10);
+const generate = new Generate();
 
-const generateUniqname = (name, strv) => {
-    try {
-        const char = name.split(' ');
-        const number = strv.split('');
-        let arr = [];
-
-        for (let i = 0; i < number.length; i++) {
-            
-            if(i > 10) {
-                arr.push(strv[i])
-            }
-            arr.push(char[i]);
-        }
-
-        const result = Array.from(arr).join('');
-        return result.toLocaleLowerCase();
-
-    } catch (error) {
-        throw error;
-    }
-}
-
-class ClincisController {
+class ClincisController{
 
     async get(req, res) {
         try {
@@ -50,26 +31,46 @@ class ClincisController {
             const phone = req.body.phone;
             const address = req.body.address;
             const password = req.body.password;
-            const uniqname = generateUniqname(clinic, strv);
+            const uniqname = generate.Uniqname(clinic, strv);
             const hash = bcrypt.hashSync(password, salt);
-
             console.log(uniqname);
-            const response = await new Clincs({
-                clinic_name : clinic,
-                uniqname : uniqname,
-                no_strv : strv,
-                no_hp : phone,
-                alamat : address,
-                password : hash
-            });
 
-            response.save();
+            clinics.findOne({
+                uniqname : uniqname
+            })
+            .then(result => {
+                if(result) {
+                    console.log(result);
+                    console.log('ada');
 
-            return res.send({
-                method : req.method,
-                status : false,
-                code : 202,
-                message : 'username already exists'
+                    res.send({
+                        method : req.method,
+                        status : false,
+                        code : 202,
+                        message : 'username already exists'
+                    });
+                } else {
+                    console.log(result);
+                    console.log('nda ada');
+
+                    const response = new Clincs({
+                        clinic_name : clinic,
+                        uniqname : uniqname,
+                        no_strv : strv,
+                        no_hp : phone,
+                        alamat : address,
+                        password : hash
+                    });
+        
+                    response.save();
+        
+                    res.send({
+                        method : req.method,
+                        status : true,
+                        code : 200,
+                        result : response
+                    });
+                }
             });
 
 

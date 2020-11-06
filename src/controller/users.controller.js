@@ -1,31 +1,11 @@
 const Users = require('../model/users');
+const Generate = require('../helpers/generate');
 const bcrypt = require('bcrypt');
 
 const salt = bcrypt.genSaltSync(10);
+const generate = new Generate();
 
-const generateUsername = (name, phone) => {
-    try {
-        const char = name.split(' ');
-        const number = phone.split('');
-        const arr = [];
-
-        for (let i = 0; i < number.length; i++) {
-            if (i > 7) {
-                arr.push(number[i]);
-            } else if(i === 0) {
-                arr.push(char[0]);
-            }
-        }
-
-        const result = Array.from(arr).join('');
-        return result.toLocaleLowerCase();
-
-    } catch (error) {
-        throw error;            
-    }
-}
-
-class UsersController {
+class UsersController{
     
     async get(req, res) {
         try {
@@ -46,13 +26,16 @@ class UsersController {
             const name = req.body.name;
             const phone = req.body.no_hp;
             const password = req.body.password;
-            const username = generateUsername(name, phone);
+            const username = generate.Uniqname(name, phone);
             const address = req.body.alamat;
             const hash = bcrypt.hashSync(password, salt);
+
+            console.log(username);
 
             Users.findOne({
                 username : username
             }).then(result => {
+                console.log(result);
                 if(result) {
                     console.log('ada');
                     res.send({
@@ -62,6 +45,7 @@ class UsersController {
                         message : 'username already exists'
                     })
                 } else {
+                    console.log('nda ada');
                     const response = new Users({
                         name : name,
                         username : username,
@@ -72,7 +56,7 @@ class UsersController {
         
                     response.save();
         
-                    return res.send({
+                    res.send({
                         method : req.method,
                         status : true,
                         code : 200,
@@ -145,6 +129,33 @@ class UsersController {
                 }
             });
 
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteUser(req, res) {
+        try {
+            const username = req.params.username;
+            return await Users.deleteOne({
+                username : username
+            }, (err) => {
+                if(err) {
+                    res.send({
+                        method : req.method,
+                        status : false,
+                        code : 203,
+                        message : 'failed delete data'
+                    })
+                } else {
+                    res.send({
+                        method : req.method,
+                        status : true,
+                        code : 200,
+                        message : 'success delete data'
+                    })
+                }
+            })
         } catch (error) {
             throw error;
         }

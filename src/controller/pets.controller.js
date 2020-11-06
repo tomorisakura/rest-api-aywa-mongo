@@ -1,26 +1,11 @@
 const Pets = require('../model/pets');
+const Generate = require('../helpers/generate');
+const formidable = require('formidable');
+const path = require('path');
+const fs = require('fs');
+const mv = require('mv');
 
-const generateUniqpet = (name) => {
-    try {
-        let arr = [];
-        const random = String(Math.random() * 100);
-        const result = random.split('');
-        console.log(result.length);
-        arr.push(name);
-        for (let i = 0; i < result.length; i++) {
-            if(i > 10) {
-                arr.push(result[i]);
-            }
-        }
-
-        const uniq = Array.from(arr).join('');
-        console.log(uniq);
-        return uniq.toLowerCase();
-        
-    } catch (error) {
-        throw error;
-    }
-}
+const generate = new Generate();
 
 class PetsController {
 
@@ -38,59 +23,139 @@ class PetsController {
         }
     }
 
+    async getByType(req, res) {
+        try {
+            const typeId = req.query.id;
+            const response = await Pets.find({ types : {
+                _id : typeId
+            }  }).populate('types').populate('clinic');
+            return res.send({
+                method : req.method,
+                status : true,
+                code : 200,
+                result : response
+            })
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async getPetByClinic(req, res) {
+        try {
+            const clinicId = req.query.id;
+            const response = await Pets.find({ clinic : {
+                _id : clinicId
+            }
+            }).populate('types').populate('clinic').lean();
+            return res.send({
+                method : req.method,
+                status : true,
+                code : 200,
+                result : response
+            })
+        } catch (error) {
+            throw error;
+        }
+    }
+
     createPets(req, res) {
         try {
-            const uniqclinic = req.body.uniqclinic;
-            const type = req.body.type;
-            const petname = req.body.petname;
-            const owner = req.body.owner;
-            const gender = req.body.gender;
-            const weight = req.body.weight;
-            const ras = req.body.ras;
-            const age = req.body.age;
-            const vaccine = req.body.vaccine;
-            const info = req.body.info;
-            const uniqname = generateUniqpet(petname);
+            
+            const form = formidable({ multiples : true });
+            form.parse(req, (err, field, file) => {
+                if(err) console.log(`formidable err : ${err}`);
+                const oldpath = file.image.path;
+                const filename = file.image.name;
 
-            Pets.findOne({
-                uniqname : uniqname
-            })
-            .then(result => {
-                if(result === null) {
-                    const response = new Pets({
-                        clinic_uniqname : uniqclinic,
-                        jenis : type,
-                        nama_peliharaan : petname,
-                        uniqname : uniqname,
-                        pemilik_lama : owner,
-                        jenis_kelamin : gender,
-                        berat_peliharaan : weight,
-                        ras_peliharaan : ras,
-                        umur_peliharaan : age,
-                        status_vaksin : vaccine,
-                        informasi : info
-                    });
+                const oldpathTwo = file.image_two.path;
+                const filenameTwo = file.image_two.name;
 
-                    response.save();
+                const clinicId = field.clinic;
+                const typeId = field.type;
+                const petname = field.petname;
+                const owner = field.owner;
+                const gender = field.gender;
+                const weight = field.weight;
+                const ras = field.ras;
+                const age = field.age;
+                const vaccine = field.vaccine;
+                const info = field.info;
+                
+                const uniqname = generate.Uniqpet(petname);
 
-                    res.send({
-                        method : req.method,
-                        status : true,
-                        code : 200,
-                        results : response
-                    });
+                const newPath = path.join(__dirname + `/../public/images/${filename}`);
+                const newPathTwo = path.join(__dirname + `/../public/images/${filenameTwo}`);
+                
+                Pets.findOne({
+                    uniqname : uniqname
+                })
+                .then(result => {
 
-                } else {
-                    res.send({
-                        method : req.method,
-                        status : false,
-                        code : 202,
-                        message : 'failed to insert data , please try again',
-                        results : null
-                    });
-                }
-            })
+                    const clinic = {
+                        _id : clinicId
+                    };
 
+                    const type = {
+                        _id : typeId
+                    };
+    
+                    const image = [{
+                        pic_name : filename,
+                        pic_url : newPath
+                    },{
+                        pic_name : filenameTwo,
+                        pic_url : newPathTwo
+                    }];
+
+                    if(!result) {
+
+                        mv(oldpath, newPath, (err) => {
+                            if(err) console.log(`mv err : ${err}`);
+                        });
+
+                        mv(oldpathTwo, newPathTwo, (err) => {
+                            if(err) console.log(`mv two err : ${err}`);
+                        });
+    
+                        const response = new Pets({
+                            clinic : clinic,
+                            types : type,
+                            picture : image,
+                            nama_peliharaan : petname,
+                            uniqname : uniqname,
+                            pemilik_lama : owner,
+                            jenis_kelamin : gender,
+                            berat_peliharaan : weight,
+                            ras_peliharaan : ras,
+                            umur_peliharaan : age,
+                            status_vaksin : vaccine,
+                            informasi : info
+                        });
+    
+                        response.save();
+    
+                        res.send({
+                            method : req.method,
+                            status : true,
+                            code : 200,
+                            results : response
+                        });
+    
+                    } else {
+                        res.send({
+                            method : req.method,
+                            status : false,
+                            code : 202,
+                            message : 'failed to insert data , please try again',
+                            results : null
+                        });
+                    }
+                })
+
+                console.log(newPath);
+                console.log(file.image);
+
+            });
         } catch (error) {
             throw error;
         }

@@ -13,5 +13,7 @@ status : on progress 🚀
 - [x] hashing
 - [ ] jwt
 - [ ] websocket (using socket io)
+- [ ] Nodemailer (for send new password / forget password)
+
 
 ---

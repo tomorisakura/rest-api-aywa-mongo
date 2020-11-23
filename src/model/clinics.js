@@ -17,6 +17,10 @@ const clincs = mongoose.Schema({
         type : String,
         required : true
     },
+    email : {
+        type: String,
+        required: true
+    },
     alamat : {
         type : String,
         required : true

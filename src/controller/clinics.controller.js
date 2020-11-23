@@ -1,7 +1,7 @@
 const Clincs = require('../model/clinics');
 const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
 const Generate = require('../helpers/generate');
-const clinics = require('../model/clinics');
 
 const salt = bcrypt.genSaltSync(10);
 const generate = new Generate();
@@ -11,8 +11,6 @@ class ClincisController{
     async get(req, res) {
         try {
             const response = await Clincs.find();
-            let status = true;
-            status ? console.log('okey') : console.log('mantap');
             return res.send({
                 method : req.method,
                 status : true,
@@ -30,12 +28,13 @@ class ClincisController{
             const strv = req.body.strv;
             const phone = req.body.phone;
             const address = req.body.address;
+            const email = req.body.email;
             const password = req.body.password;
             const uniqname = generate.Uniqname(clinic, strv);
             const hash = bcrypt.hashSync(password, salt);
             console.log(uniqname);
 
-            clinics.findOne({
+            Clincs.findOne({
                 uniqname : uniqname
             })
             .then(result => {
@@ -57,6 +56,7 @@ class ClincisController{
                         clinic_name : clinic,
                         uniqname : uniqname,
                         no_strv : strv,
+                        email : email,
                         no_hp : phone,
                         alamat : address,
                         password : hash
@@ -96,7 +96,7 @@ class ClincisController{
                         response : err
                     })
                 } else {
-                    res.send({
+                    res.send({ 
                         method : req.method,
                         status : true,
                         code : 200,
@@ -133,12 +133,75 @@ class ClincisController{
                         method : req.method,
                         status : false,
                         code : 202,
-                        message : 'login failed',
+                        message : 'login failed, password not match',
                         token : null
                     })
                 }
 
+            })
+            .catch(err => {
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    message : 'login failed, password or uniqname not match',
+                    err : err
+                });
             });
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async resetPassword(req, res) {
+        try {
+            const uniqname = req.params.uniqname;
+            const email = req.body.email;
+            const newPassword = req.body.new_password;
+            const hash = bcrypt.hashSync(newPassword, salt);
+
+            let transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: 'foxie.clinic@gmail.com',
+                    pass: 'kyokosakura18'
+                }
+            });
+
+            let mailOptions = {
+                from: 'foxie.clinic@gmail.com',
+                to: email,
+                subject: 'Reset Password Akun Foxie Clinics',
+                text: `Password baru kamu telah diubah , passwordnya : ${newPassword}`
+            }
+
+            return await Clincs.updateOne({
+                uniqname : uniqname
+            }, {password : hash}).then(result => {
+                console.log(result);
+
+                transporter.sendMail(mailOptions, (err, response) => {
+                    if(err) throw err;
+                    console.log(`response : ${response}`);
+                });
+
+                res.send({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    message : 'success reset password, please check your email'
+                })
+
+            }).catch((err) => {
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    message : 'uniqname not found !',
+                    err : err
+                })
+            });
+                        
         } catch (error) {
             throw error;
         }

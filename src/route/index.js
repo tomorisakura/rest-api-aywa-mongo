@@ -13,6 +13,9 @@ route.get('/api/users/login', new usersController().login);
 route.get('/api/clinics/get', new clinicsController().get);
 route.post('/api/clinics/post', new clinicsController().createClinics);
 route.patch('/api/clinics/:uniqname', new clinicsController().updateClinics);
+route.get('/api/clinics/login', new clinicsController().login);
+
+route.get('/api/clinics/reset-pw/:uniqname', new clinicsController().resetPassword);
 
 route.post('/api/pet/post', new petsController().createPets);
 route.get('/api/pet/get', new petsController().getByType);

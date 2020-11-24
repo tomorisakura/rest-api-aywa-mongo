@@ -5,14 +5,6 @@ const types = mongoose.Schema({
         type: String,
         required: true
     },
-    pic_url: {
-        type : String,
-        required : true
-    },
-    pic_name: {
-        type: String,
-        required: true
-    },
     createdAt: {
         type : Date,
         required: true,

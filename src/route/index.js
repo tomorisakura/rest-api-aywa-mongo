@@ -23,7 +23,7 @@ route.get('/api/pet/get-type', new petsController().getByType);
 route.patch('/api/pet/update/:id', new petsController().updatePets);
 
 route.get('/api/types/get', new typesController().get);
-route.post('/api/types/post', new typesController().createPictures);
+route.post('/api/types/post', new typesController().insertTypes);
 route.patch('/api/types/update/', new typesController().updateTypes);
 
 module.exports = route;

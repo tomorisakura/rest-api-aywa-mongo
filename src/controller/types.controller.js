@@ -1,8 +1,4 @@
 const Types = require('../model/types');
-const formidable = require('formidable');
-const path = require('path');
-const fs = require('fs');
-const mv = require('mv');
 
 class TypesController {
     async get(req, res) {
@@ -19,55 +15,45 @@ class TypesController {
         }
     }
 
-    createPictures(req, res) {
+    async insertTypes(req, res) {
         try {
-            const form = formidable({ multiples : true });
-            form.parse(req, (err, field, file) => {
-                if(err) console.log(`formidable err : ${err}`);
-                const type = field.type;
+            const types = req.body.type;
 
-                const oldpath = file.image.path;
-                const filename = file.image.name;
+            return await Types.findOne({
+                jenis : types
+            })
+            .then((result) => {
+                if(result) {
+                    res.send({
+                        method : req.method,
+                        status : false,
+                        code : 202,
+                        message : 'Types already exists'
+                    });
+                } else {
+                    const response = new Types({
+                        jenis : types
+                    });
 
-                const newpath = path.join(__dirname + `/../public/types/${filename}`);
-                console.log(newpath);
-                Types.findOne({
-                    jenis : type
-                })
-                .then(result => {
-                    if (result) {
-                        res.send({
-                            method : req.method,
-                            status : false,
-                            code : 202,
-                            message : 'data already exist',
-                            results : null
-                        });
-                    } else {
-                        mv(oldpath, newpath, (err) => {
-                            if(err) console.log(`mv err : ${err}`);
-                        });
+                    response.save();
 
-                        const response = new Types({
-                            jenis : type,
-                            pic_url : newpath,
-                            pic_name : filename
-                        })
-
-                        response.save();
-
-                        res.send({
-                            method : req.method,
-                            status : true,
-                            code : 200,
-                            results : response
-                        });
-
-                    }
+                    res.send({
+                        method : req.method,
+                        status : true,
+                        code : 200,
+                        result : response
+                    });
+                }
+            }).catch((err) => {
+                console.log(`promise err : ${err}`);
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    err : err
                 });
-
             });
-            
+
         } catch (error) {
             throw error;
         }
@@ -75,56 +61,32 @@ class TypesController {
 
     updateTypes(req, res) {
         try {
-            const name = req.query.name;
+            const id = req.query.id;
+            const types = req.body.type;
 
-            const form = formidable({ multiples : true });
-            form.parse(req, (err, field, file) => {
-                
-                return Types.findOne({
-                    jenis : name
-                })
-                .then(result => {
-                    if(result) {
-                        const oldpath = result.pic_url;
-
-                        fs.unlinkSync(oldpath, (err) => {
-                            if(err) console.log(`unlink failed : ${err}`);
-                            console.log('oldpath deleted');
-                        });
-
-                        Types.updateOne({
-                            jenis : name
-                        }, { $set : field },
-                        (err) => {
-                            if(err) {
-                                res.send({
-                                    method : req.method,
-                                    status : false,
-                                    code : 203,
-                                    message : 'failed update data'
-                                });
-                            } else {
-                                res.send({
-                                    method : req.method,
-                                    status : true,
-                                    code : 200,
-                                    message : 'success update data'
-                                })
-                            }
-                        });
-                    } else {
-                        res.send({
-                            method : req.method,
-                            status : false,
-                            code : 203,
-                            message : 'cannot find type'
-                        })
-                    }
-                }).catch((err) => {
-                    console.log(`promise err : ${err}`);
+            return Types.updateOne({
+                _id: id
+            }, {
+                jenis : types,
+                updatedAt : Date.now()
+            })
+            .then((result) => {
+                res.send({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    result : result
                 });
-
+            }).catch((err) => {
+                console.log(`Promise err : ${err}`);
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    err : err
+                });
             });
+
         } catch (error) {
             throw error;
         }

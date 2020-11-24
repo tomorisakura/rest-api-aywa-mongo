@@ -161,9 +161,16 @@ class PetsController {
         }
     }
 
-    updatePets(req, res) {
+    async updatePets(req, res) {
         try {
-            
+            const id = req.params.id;
+
+            return Pets.findOne({ _id : id })
+            .then((result) => {
+                console.log(result);
+            }).catch((err) => {
+                console.log(`Promise err : ${err}`);
+            });
         } catch (error) {
             throw error;
         }

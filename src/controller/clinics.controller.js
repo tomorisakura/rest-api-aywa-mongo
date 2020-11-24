@@ -135,7 +135,7 @@ class ClincisController{
                         code : 202,
                         message : 'login failed, password not match',
                         token : null
-                    })
+                    });
                 }
 
             })
@@ -172,7 +172,7 @@ class ClincisController{
                 from: 'foxie.clinic@gmail.com',
                 to: email,
                 subject: 'Reset Password Akun Foxie Clinics',
-                text: `Password baru kamu telah diubah , passwordnya : ${newPassword}`
+                text: `Hallo ${uniqname} password akun kamu berhasil diubah, passwordnya : ${newPassword}`
             }
 
             return await Clincs.updateOne({

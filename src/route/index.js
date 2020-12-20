@@ -5,6 +5,10 @@ const petsController = require('../controller/pets.controller');
 const typesController = require('../controller/types.controller');
 const provinceController = require('../controller/province.controller');
 
+route.get('/', (req, res) => {
+    res.send("Hellow");
+})
+
 route.get('/api/users/get', new usersController().get);
 route.post('/api/users/post', new usersController().createUsers);
 route.patch('/api/users/update/:username', new usersController().updateUsers);

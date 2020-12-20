@@ -47,8 +47,8 @@ const pets = mongoose.Schema({
         type : String,
         required : true
     },
-    informasi : {
-        type : String,
+    status : {
+        type : Boolean,
         required : true
     },
     createdAt : {

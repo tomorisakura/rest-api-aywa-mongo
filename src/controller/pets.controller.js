@@ -79,12 +79,14 @@ class PetsController {
                 const ras = field.ras;
                 const age = field.age;
                 const vaccine = field.vaccine;
-                const info = field.info;
                 
                 const uniqname = generate.Uniqpet(petname);
 
                 const newPath = path.join(__dirname + `/../public/images/${filename}`);
                 const newPathTwo = path.join(__dirname + `/../public/images/${filenameTwo}`);
+
+                //console.log(newPath);
+                //console.log(file.image);
                 
                 Pets.findOne({
                     uniqname : uniqname
@@ -101,10 +103,10 @@ class PetsController {
     
                     const image = [{
                         pic_name : filename,
-                        pic_url : newPath
+                        pic_url : `images/${filename}`
                     },{
                         pic_name : filenameTwo,
-                        pic_url : newPathTwo
+                        pic_url : `images/${filenameTwo}`
                     }];
 
                     if(!result) {
@@ -129,7 +131,7 @@ class PetsController {
                             ras_peliharaan : ras,
                             umur_peliharaan : age,
                             status_vaksin : vaccine,
-                            informasi : info
+                            status : true
                         });
     
                         response.save();
@@ -152,9 +154,6 @@ class PetsController {
                     }
                 })
 
-                console.log(newPath);
-                console.log(file.image);
-
             });
         } catch (error) {
             throw error;
@@ -167,9 +166,82 @@ class PetsController {
 
             return Pets.findOne({ _id : id })
             .then((result) => {
-                console.log(result);
+                //console.log(result.picture[0].pic_url);
+                const imageOne = result.picture[0].pic_url;
+                const imageTwo = result.picture[1].pic_url;
+
+                const form = formidable({ multiples: true });
+                form.parse(req, (err, field, file) => {
+
+                    const updatePath = file.image.path;
+                    const filename = file.image.name;
+    
+                    const updatePathTwo = file.image_two.path;
+                    const filenameTwo = file.image_two.name;
+                    
+                    const typeId = field.type;
+                    const petname = field.petname;
+                    const owner = field.owner;
+                    const gender = field.gender;
+                    const weight = field.weight;
+                    const ras = field.ras;
+                    const age = field.age;
+                    const vaccine = field.vaccine;
+
+                    const type = {
+                        _id : typeId
+                    };
+    
+                    const image = [{
+                        pic_name : filename,
+                        pic_url : `images/${filename}`
+                    },{
+                        pic_name : filenameTwo,
+                        pic_url : `images/${filenameTwo}`
+                    }];
+
+                    Pets.updateOne({
+                        _id : id
+                    }, {
+                        types: type,
+                        nama_peliharaan: petname,
+                        pemilik_lama: owner,
+                        jenis_kelamin: gender,
+                        berat_peliharaan: weight,
+                        ras_peliharaan: ras,
+                        umur_peliharaan: age,
+                        status_vaksin: vaccine
+                    })
+                    .then((result) => {
+                        res.send({
+                            method : req.method,
+                            status : true,
+                            code : 200,
+                            result : result
+                        });
+                    }).catch((err) => {
+                        res.send({
+                            method : req.method,
+                            status : false,
+                            code : 202,
+                            message : `failed update pets`,
+                            results : null
+                        });
+                        res.end();
+                    });
+
+                });
+
             }).catch((err) => {
                 console.log(`Promise err : ${err}`);
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    message : `cant find pet with _id ${id}`,
+                    results : null
+                });
+                res.end();
             });
         } catch (error) {
             throw error;

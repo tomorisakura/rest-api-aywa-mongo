@@ -17,7 +17,7 @@ class App extends Configure {
         this.app.use(bodyParser.urlencoded({ extended: false }));
         this.app.use(bodyParser.json());
         this.app.use(route);
-        this.app.use(dir.static('public'));
+        this.app.use(dir.static(__dirname +'/public'));
         return this.app.listen(this.port, () => {
             try {
                 console.log(`Running on port ${this.port} ✌`);

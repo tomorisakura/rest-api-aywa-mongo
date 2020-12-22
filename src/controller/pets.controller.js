@@ -4,6 +4,7 @@ const formidable = require('formidable');
 const path = require('path');
 const fs = require('fs');
 const mv = require('mv');
+const sharp = require('sharp');
 
 const generate = new Generate();
 
@@ -85,7 +86,9 @@ class PetsController {
                 const newPath = path.join(__dirname + `/../public/images/${filename}`);
                 const newPathTwo = path.join(__dirname + `/../public/images/${filenameTwo}`);
 
-                //console.log(newPath);
+                const compressedPath = path.join(__dirname +`/../public/compressed/${filename}`);
+                const compressedPathTwo = path.join(__dirname +`/../public/compressed/${filenameTwo}`);
+
                 //console.log(file.image);
                 
                 Pets.findOne({
@@ -118,7 +121,23 @@ class PetsController {
                         mv(oldpathTwo, newPathTwo, (err) => {
                             if(err) console.log(`mv two err : ${err}`);
                         });
+
+                        setTimeout(() => {
+                            sharp(newPath).jpeg({
+                                quality: 50
+                            }).toFile(compressedPath, (err, info) => {
+                                if(err) console.log(`err : ${err}`);
+                                console.log(`image one : ${info}`);
+                            });
     
+                            sharp(newPathTwo).jpeg({
+                                quality: 50
+                            }).toFile(compressedPathTwo, (err, info) => {
+                                if(err) console.log(`err : ${err}`);
+                                console.log(`image two : ${info}`);
+                            });
+                        }, 2000);
+
                         const response = new Pets({
                             clinic : clinic,
                             types : type,
@@ -152,7 +171,7 @@ class PetsController {
                             results : null
                         });
                     }
-                })
+                });
 
             });
         } catch (error) {
@@ -243,6 +262,64 @@ class PetsController {
                 });
                 res.end();
             });
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    deletePets = (req, res) => {
+        try {
+            
+            const id = req.params.id
+
+            const findPet = Pets.findOne({
+                _id: id
+            });
+
+            const deletePet = Pets.deleteOne({
+                _id: id
+            });
+
+            return Promise.all([findPet, deletePet])
+            .then((result) => {
+                const imageOne = result[0].picture[0].pic_url;
+                //console.log(imageOne);
+                const imageTwo = result[0].picture[1].pic_url;
+
+                const pathOne = path.join(__dirname + `/../public/${imageOne}`);
+                const pathTwo = path.join(__dirname + `/../public/${imageTwo}`);
+
+                //console.log(pathOne);
+
+                fs.unlinkSync(pathOne, (err) => {
+                    if(err) console.log(`Failed delete photos ${err}`);
+                    console.log('deleted path one');
+                });
+
+                fs.unlinkSync(pathTwo, (err) => {
+                    if(err) console.log(`Failed delete photos ${err}`);
+                    console.log('deleted path two');
+                });
+
+                res.send({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    result : `success delete pet ${result[0].uniqname}`
+                });
+
+            }).catch((err) => {
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    message : `promise failure : ${err}`,
+                    results : null
+                });
+                
+                throw err;
+            });
+
         } catch (error) {
             throw error;
         }

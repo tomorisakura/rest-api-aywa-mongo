@@ -4,7 +4,10 @@ class KeepController {
 
     getKeep = async (req, res) => {
         try {
-            const response = await Keep.find();
+            
+            const response = await Keep.find()
+            .populate('users_id')
+            .populate('pet_id');
             return res.send({
                 method : req.method,
                 status : true,

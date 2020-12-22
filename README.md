@@ -11,9 +11,10 @@ status : on progress 🚀
 **feature**
 
 - [x] hashing
-- [x] jwt //already added (still waiting for fixed data)
+- [x] jwt (still waiting for fixed data)
 - [ ] websocket (using socket io)
-- [ ] Nodemailer (for send new password / forget password)
+- [x] Nodemailer (for send new password / forget password)
+- [x] Sharp (for image compressed size)
 
 
 ---

@@ -4,6 +4,7 @@ const clinicsController = require('../controller/clinics.controller');
 const petsController = require('../controller/pets.controller');
 const typesController = require('../controller/types.controller');
 const provinceController = require('../controller/province.controller');
+const keepController = require('../controller/keep.controller');
 
 route.get('/', (req, res) => {
     res.send("Hellow");
@@ -26,10 +27,16 @@ route.post('/api/pet/post', new petsController().createPets);
 route.get('/api/pet/get', new petsController().get);
 route.get('/api/pet/get-type', new petsController().getByType);
 route.patch('/api/pet/update/:id', new petsController().updatePets);
+route.delete('/api/pet/delete/:id', new petsController().deletePets);
 
 route.get('/api/types/get', new typesController().get);
 route.post('/api/types/post', new typesController().insertTypes);
 route.patch('/api/types/update/', new typesController().updateTypes);
+
+route.get('/api/keep/get', new keepController().getKeep);
+route.post('/api/keep/post', new keepController().insertKeep);
+route.patch('/api/keep/update/:id', new keepController().updateKeep);
+route.delete('/api/keep/delete/:id', new keepController().deleteKeep);
 
 route.get('/api/province', new provinceController().getProvince);
 route.get('/api/kabupaten/:id', new provinceController().getKabupaten);

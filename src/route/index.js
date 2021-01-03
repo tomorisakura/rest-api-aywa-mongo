@@ -7,8 +7,20 @@ const provinceController = require('../controller/province.controller');
 const keepController = require('../controller/keep.controller');
 
 route.get('/', (req, res) => {
-    res.send("Hellow");
-})
+    res.send({
+        method: req.method,
+        message: "Wellcome to Aywa Pet Service 🦊"
+    });
+    res.end();
+});
+
+route.get('/api', (req, res) => {
+    res.send({
+        method: req.method,
+        message: "unch, this service is private dude h3h3 🦊"
+    });
+    res.end();
+});
 
 route.get('/api/users/get', new usersController().get);
 route.post('/api/users/post', new usersController().createUsers);
@@ -19,9 +31,11 @@ route.get('/api/users/login', new usersController().login);
 route.get('/api/clinics/get', new clinicsController().get);
 route.post('/api/clinics/post', new clinicsController().createClinics);
 route.patch('/api/clinics/:uniqname', new clinicsController().updateClinics);
-route.get('/api/clinics/login', new clinicsController().login);
+route.post('/api/clinics/login', new clinicsController().login);
 
 route.get('/api/clinics/reset-pw/:uniqname', new clinicsController().resetPassword);
+
+route.get('/api/clinics/find-clinic/:uniqname', new clinicsController().getClinic);
 
 route.post('/api/pet/post', new petsController().createPets);
 route.get('/api/pet/get', new petsController().get);

@@ -207,6 +207,35 @@ class ClincisController{
         }
     }
 
+    getClinic(req, res) {
+        try {
+            const uniqname = req.params.uniqname;
+
+            console.log(req.method);
+
+            return Clincs.findOne({
+                uniqname : uniqname
+            })
+            .then((result) => {
+                res.send({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    result : result
+                }); 
+            }).catch((err) => {
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    message : 'uniqname not found !',
+                    err : err
+                })
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
      
 }
 

@@ -1,12 +1,45 @@
 const Pets = require('../model/pets');
 const Generate = require('../helpers/generate');
-const formidable = require('formidable');
+const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const mv = require('mv');
 const sharp = require('sharp');
 
 const generate = new Generate();
+
+const storage = multer.diskStorage({
+    destination : __dirname+'/../public/images',
+    filename : (req, file, cb) => {
+        cb(null, file.fieldname + '-' +Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    fileFilter: function (req, file, cb) {
+        checkFile(file, cb);
+    }
+}).array('imagePet', 12);
+
+function checkFile(file, cb) {
+    try {
+        // Allowed ext
+        const filetypes = /jpeg|jpg|png|gif/;
+        // Check ext
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+        // Check mime
+        const mimetype = filetypes.test(file.mimetype);
+    
+        if(mimetype && extname){
+        return cb(null,true);
+        } else {
+        cb('Error: Images Only!');
+        }
+    } catch (error) {
+        throw error;
+    }
+}
 
 class PetsController {
 
@@ -61,118 +94,117 @@ class PetsController {
 
     createPets(req, res) {
         try {
-            
-            const form = formidable({ multiples : true });
-            form.parse(req, (err, field, file) => {
-                if(err) console.log(`formidable err : ${err}`);
-                const oldpath = file.image.path;
-                const filename = file.image.name;
+            upload(req, res, (err) => {
+                if (err) {
+                    console.log(err);
+                    return;
+                } else {
+                    const file = req.files;
+                    const clinicId = req.body.clinic;
+                    const typeId = req.body.type;
+                    const petName = req.body.petname;
+                    const oldOwner = req.body.owner;
+                    const gender = req.body.gender;
+                    const weight = req.body.weight;
+                    const ras = req.body.ras;
+                    const age = req.body.age;
+                    const vaccine = req.body.vaccine;
 
-                const oldpathTwo = file.image_two.path;
-                const filenameTwo = file.image_two.name;
+                    const uniqname = generate.Uniqpet(petName);
 
-                const clinicId = field.clinic;
-                const typeId = field.type;
-                const petname = field.petname;
-                const owner = field.owner;
-                const gender = field.gender;
-                const weight = field.weight;
-                const ras = field.ras;
-                const age = field.age;
-                const vaccine = field.vaccine;
-                
-                const uniqname = generate.Uniqpet(petname);
+                    const imageOne = file[0].filename; 
+                    const imageTwo = file[1].filename;
 
-                const newPath = path.join(__dirname + `/../public/images/${filename}`);
-                const newPathTwo = path.join(__dirname + `/../public/images/${filenameTwo}`);
+                    //console.log(file);
 
-                const compressedPath = path.join(__dirname +`/../public/compressed/${filename}`);
-                const compressedPathTwo = path.join(__dirname +`/../public/compressed/${filenameTwo}`);
+                    console.log(`${imageOne}, ${imageTwo}`);
 
-                //console.log(file.image);
-                
-                Pets.findOne({
-                    uniqname : uniqname
-                })
-                .then(result => {
+                    Pets.findOne({
+                        uniqname : uniqname
+                    })
+                    .then((result) => {
 
-                    const clinic = {
-                        _id : clinicId
-                    };
+                        if (result) {
+                            console.log('exists, try again');
+                            //return;
+                        } else {
+                            console.log('existing pet..');
+                            const pathImageOne = path.join(__dirname + `/../public/images/${imageOne}`);
+                            const pathImageTwo = path.join(__dirname + `/../public/images/${imageTwo}`);
 
-                    const type = {
-                        _id : typeId
-                    };
+                            const compImageOne = path.join(__dirname +`/../public/compressed/${imageOne}`);
+                            const compImageTwo = path.join(__dirname +`/../public/compressed/${imageTwo}`);
+
+                            const clinic = {
+                                _id: clinicId
+                            };
     
-                    const image = [{
-                        pic_name : filename,
-                        pic_url : `images/${filename}`
-                    },{
-                        pic_name : filenameTwo,
-                        pic_url : `images/${filenameTwo}`
-                    }];
+                            const type = {
+                                _id: typeId
+                            };
+    
+                            const image = [{
+                                pic_name : imageOne,
+                                pic_url : `images/${imageOne}`,
+                                pic_compress : `compressed/${imageOne}`
+                            },{
+                                pic_name : imageTwo,
+                                pic_url : `images/${imageTwo}`,
+                                pic_compress : `compressed/${imageTwo}`
+                            }];
 
-                    if(!result) {
+                            setTimeout(() => {
+                                sharp(pathImageOne).jpeg({
+                                    quality: 50
+                                }).toFile(compImageOne, (err, info) => {
+                                    if(err) console.log(`err : ${err}`);
+                                    console.log(`image one : ${info}`);
+                                });
+        
+                                sharp(pathImageTwo).jpeg({
+                                    quality: 50
+                                }).toFile(compImageTwo, (err, info) => {
+                                    if(err) console.log(`err : ${err}`);
+                                    console.log(`image two : ${info}`);
+                                });
 
-                        mv(oldpath, newPath, (err) => {
-                            if(err) console.log(`mv err : ${err}`);
-                        });
+                            }, 2000);
 
-                        mv(oldpathTwo, newPathTwo, (err) => {
-                            if(err) console.log(`mv two err : ${err}`);
-                        });
-
-                        setTimeout(() => {
-                            sharp(newPath).jpeg({
-                                quality: 50
-                            }).toFile(compressedPath, (err, info) => {
-                                if(err) console.log(`err : ${err}`);
-                                console.log(`image one : ${info}`);
+                            const response = new Pets({
+                                clinic : clinic,
+                                types : type,
+                                picture : image,
+                                nama_peliharaan : petName,
+                                uniqname : uniqname,
+                                pemilik_lama : oldOwner,
+                                jenis_kelamin : gender,
+                                berat_peliharaan : weight,
+                                ras_peliharaan : ras,
+                                umur_peliharaan : age,
+                                status_vaksin : vaccine,
+                                status : true                                
                             });
-    
-                            sharp(newPathTwo).jpeg({
-                                quality: 50
-                            }).toFile(compressedPathTwo, (err, info) => {
-                                if(err) console.log(`err : ${err}`);
-                                console.log(`image two : ${info}`);
-                            });
-                        }, 2000);
 
-                        const response = new Pets({
-                            clinic : clinic,
-                            types : type,
-                            picture : image,
-                            nama_peliharaan : petname,
-                            uniqname : uniqname,
-                            pemilik_lama : owner,
-                            jenis_kelamin : gender,
-                            berat_peliharaan : weight,
-                            ras_peliharaan : ras,
-                            umur_peliharaan : age,
-                            status_vaksin : vaccine,
-                            status : true
-                        });
-    
-                        response.save();
-    
-                        res.send({
-                            method : req.method,
-                            status : true,
-                            code : 200,
-                            results : response
-                        });
-    
-                    } else {
+                            response.save();
+
+                            res.status(200).send({
+                                method : req.method,
+                                status : true,
+                                code : 200,
+                                results : response
+                            });
+
+                        }
+                    }).catch((err) => {
+                        console.log(err);
                         res.send({
                             method : req.method,
                             status : false,
                             code : 202,
-                            message : 'failed to insert data , please try again',
-                            results : null
+                            results : err
                         });
-                    }
-                });
-
+                    });
+                }
             });
         } catch (error) {
             throw error;
@@ -183,73 +215,47 @@ class PetsController {
         try {
             const id = req.params.id;
 
+            const petName = req.body.petname;
+            const oldOwner = req.body.owner;
+            const gender = req.body.gender;
+            const weight = req.body.weight;
+            const ras = req.body.ras;
+            const age = req.body.age;
+            const typeId = req.body.type;
+            const vaccine = req.body.vaccine;
+
+            const uniqname = generate.Uniqpet(petName);
+
             return Pets.findOne({ _id : id })
             .then((result) => {
                 //console.log(result.picture[0].pic_url);
                 const imageOne = result.picture[0].pic_url;
                 const imageTwo = result.picture[1].pic_url;
+                console.log(petName);
 
-                const form = formidable({ multiples: true });
-                form.parse(req, (err, field, file) => {
+                const type = {
+                    _id : typeId
+                };
 
-                    const updatePath = file.image.path;
-                    const filename = file.image.name;
-    
-                    const updatePathTwo = file.image_two.path;
-                    const filenameTwo = file.image_two.name;
-                    
-                    const typeId = field.type;
-                    const petname = field.petname;
-                    const owner = field.owner;
-                    const gender = field.gender;
-                    const weight = field.weight;
-                    const ras = field.ras;
-                    const age = field.age;
-                    const vaccine = field.vaccine;
-
-                    const type = {
-                        _id : typeId
-                    };
-    
-                    const image = [{
-                        pic_name : filename,
-                        pic_url : `images/${filename}`
-                    },{
-                        pic_name : filenameTwo,
-                        pic_url : `images/${filenameTwo}`
-                    }];
-
-                    Pets.updateOne({
-                        _id : id
-                    }, {
-                        types: type,
-                        nama_peliharaan: petname,
-                        pemilik_lama: owner,
-                        jenis_kelamin: gender,
-                        berat_peliharaan: weight,
-                        ras_peliharaan: ras,
-                        umur_peliharaan: age,
-                        status_vaksin: vaccine
-                    })
-                    .then((result) => {
-                        res.send({
-                            method : req.method,
-                            status : true,
-                            code : 200,
-                            result : result
-                        });
-                    }).catch((err) => {
-                        res.send({
-                            method : req.method,
-                            status : false,
-                            code : 202,
-                            message : `failed update pets`,
-                            results : null
-                        });
-                        res.end();
+                Pets.updateOne({
+                    _id : id
+                }, {
+                    types: type,
+                    nama_peliharaan: petName,
+                    pemilik_lama: oldOwner,
+                    jenis_kelamin: gender,
+                    berat_peliharaan: weight,
+                    ras_peliharaan: ras,
+                    umur_peliharaan: age,
+                    status_vaksin: vaccine
+                }).then(result => {
+                    res.send({
+                        method : req.method,
+                        status : true,
+                        code : 200,
+                        result : result
                     });
-
-                });
+                })
 
             }).catch((err) => {
                 console.log(`Promise err : ${err}`);
@@ -260,7 +266,6 @@ class PetsController {
                     message : `cant find pet with _id ${id}`,
                     results : null
                 });
-                res.end();
             });
         } catch (error) {
             throw error;

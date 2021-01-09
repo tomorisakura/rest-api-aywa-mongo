@@ -6,6 +6,10 @@ const typesController = require('../controller/types.controller');
 const provinceController = require('../controller/province.controller');
 const keepController = require('../controller/keep.controller');
 
+const dummy = require('../controller/dummy.controller');
+
+route.post('/api/dummy/image', dummy.post);
+
 route.get('/', (req, res) => {
     res.send({
         method: req.method,
@@ -42,6 +46,7 @@ route.get('/api/pet/get', new petsController().get);
 route.get('/api/pet/get-type', new petsController().getByType);
 route.patch('/api/pet/update/:id', new petsController().updatePets);
 route.delete('/api/pet/delete/:id', new petsController().deletePets);
+route.get('/api/pet/get-by-clinic/:id', new petsController().getPetByClinic);
 
 route.get('/api/types/get', new typesController().get);
 route.post('/api/types/post', new typesController().insertTypes);

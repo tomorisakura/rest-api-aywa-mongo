@@ -17,9 +17,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage: storage,
-    fileFilter: function (req, file, cb) {
-        checkFile(file, cb);
-    }
+    filetypes : /jpeg|jpg|png|gif/
 }).array('imagePet', 12);
 
 function checkFile(file, cb) {
@@ -76,11 +74,11 @@ class PetsController {
 
     async getPetByClinic(req, res) {
         try {
-            const clinicId = req.query.id;
+            const clinicId = req.params.id;
             const response = await Pets.find({ clinic : {
                 _id : clinicId
             }
-            }).populate('types').populate('clinic').lean();
+            }).populate('types').lean();
             return res.send({
                 method : req.method,
                 status : true,
@@ -126,7 +124,7 @@ class PetsController {
 
                         if (result) {
                             console.log('exists, try again');
-                            //return;
+                            return;
                         } else {
                             console.log('existing pet..');
                             const pathImageOne = path.join(__dirname + `/../public/images/${imageOne}`);
@@ -170,29 +168,37 @@ class PetsController {
 
                             }, 2000);
 
-                            const response = new Pets({
-                                clinic : clinic,
-                                types : type,
-                                picture : image,
-                                nama_peliharaan : petName,
-                                uniqname : uniqname,
-                                pemilik_lama : oldOwner,
-                                jenis_kelamin : gender,
-                                berat_peliharaan : weight,
-                                ras_peliharaan : ras,
-                                umur_peliharaan : age,
-                                status_vaksin : vaccine,
-                                status : true                                
-                            });
+                            try {
+                                const response = new Pets({
+                                    clinic : clinic,
+                                    types : type,
+                                    picture : image,
+                                    nama_peliharaan : petName,
+                                    uniqname : uniqname,
+                                    pemilik_lama : oldOwner,
+                                    jenis_kelamin : gender,
+                                    berat_peliharaan : weight,
+                                    ras_peliharaan : ras,
+                                    umur_peliharaan : age,
+                                    status_vaksin : vaccine,
+                                    status : true                                
+                                });
+    
+                                response.save();
 
-                            response.save();
-
-                            res.status(200).send({
-                                method : req.method,
-                                status : true,
-                                code : 200,
-                                results : response
-                            });
+                                console.log(clinic);
+                                console.log(type);
+                                console.log("saved");
+    
+                                res.status(200).send({
+                                    method : req.method,
+                                    status : true,
+                                    code : 200,
+                                    results : response
+                                });
+                            } catch (error) {
+                                console.log(`failed saving data : ${error}`);
+                            }
 
                         }
                     }).catch((err) => {

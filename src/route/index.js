@@ -6,10 +6,6 @@ const typesController = require('../controller/types.controller');
 const provinceController = require('../controller/province.controller');
 const keepController = require('../controller/keep.controller');
 
-const dummy = require('../controller/dummy.controller');
-
-route.post('/api/dummy/image', dummy.post);
-
 route.get('/', (req, res) => {
     res.send({
         method: req.method,

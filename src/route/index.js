@@ -43,6 +43,7 @@ route.get('/api/pet/get-type', new petsController().getByType);
 route.patch('/api/pet/update/:id', new petsController().updatePets);
 route.delete('/api/pet/delete/:id', new petsController().deletePets);
 route.get('/api/pet/get-by-clinic/:id', new petsController().getPetByClinic);
+route.get('/api/pet/get-pet/:id', new petsController().findPets);
 
 route.get('/api/types/get', new typesController().get);
 route.post('/api/types/post', new typesController().insertTypes);

@@ -194,7 +194,7 @@ class PetsController {
                                     method : req.method,
                                     status : true,
                                     code : 200,
-                                    results : response
+                                    result : response
                                 });
                             } catch (error) {
                                 console.log(`failed saving data : ${error}`);
@@ -207,7 +207,7 @@ class PetsController {
                             method : req.method,
                             status : false,
                             code : 202,
-                            results : err
+                            result : err
                         });
                     });
                 }
@@ -235,8 +235,6 @@ class PetsController {
             return Pets.findOne({ _id : id })
             .then((result) => {
                 //console.log(result.picture[0].pic_url);
-                const imageOne = result.picture[0].pic_url;
-                const imageTwo = result.picture[1].pic_url;
                 console.log(petName);
 
                 const type = {
@@ -270,13 +268,33 @@ class PetsController {
                     status : false,
                     code : 202,
                     message : `cant find pet with _id ${id}`,
-                    results : null
+                    result : null
                 });
             });
         } catch (error) {
             throw error;
         }
     }
+
+    findPets = async (req, res) => {
+        try {
+            const id = req.params.id;
+
+            const response = await Pets.findOne({
+                _id : id
+            }).populate('types').populate('clinic').lean();
+
+            return res.send({
+                method : req.method,
+                status : true,
+                code : 200,
+                result : response
+            });
+
+        } catch (error) {
+            throw error;
+        }
+    } 
 
     deletePets = (req, res) => {
         try {
@@ -325,7 +343,7 @@ class PetsController {
                     status : false,
                     code : 202,
                     message : `promise failure : ${err}`,
-                    results : null
+                    result : null
                 });
                 
                 throw err;

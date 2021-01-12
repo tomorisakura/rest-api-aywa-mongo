@@ -113,8 +113,6 @@ class PetsController {
                     const imageOne = file[0].filename; 
                     const imageTwo = file[1].filename;
 
-                    //console.log(file);
-
                     console.log(`${imageOne}, ${imageTwo}`);
 
                     Pets.findOne({

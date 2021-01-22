@@ -43,7 +43,9 @@ class PetsController {
 
     async get(req, res) {
         try {
-            const response = await Pets.find()
+            const response = await Pets.find({
+                status : true
+            })
             .populate('types')
             .populate('clinic');
             return res.send({

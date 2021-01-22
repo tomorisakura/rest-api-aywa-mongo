@@ -1,4 +1,5 @@
 const Keep = require('../model/keep');
+const Pets = require('../model/pets');
 const fbService = require('../helpers/firebase.service');
 
 class KeepController {
@@ -76,10 +77,16 @@ class KeepController {
 
             response.save();
 
+            await Pets.updateOne({
+                _id: petId
+            }, {
+                status : false
+            });
+
             let message = {
                 notification : {
                     title : 'Ada yang ngekeep hewan peliharaan nih',
-                    body : 'Seseorang telah ngekeep hewan'
+                    body : 'Ayo dicek di pemberitahuan'
                 },
                 topic : 'general'
             }
@@ -105,9 +112,11 @@ class KeepController {
         }
     }
 
+    //accept keep
     updateKeep = (req, res) => {
         try {
             const keepId = req.params.id;
+
             return Keep.updateOne({
                 _id: keepId
             }, {
@@ -122,16 +131,49 @@ class KeepController {
                     result : result
                 });
             }).catch((err) => {
-                throw err;
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    result : err
+                });
             });
         } catch (error) {
             throw error;
         }
     }
 
-    deleteKeep = (req, res) => {
+    findSuccessKeep = (req, res) => {
+        try {
+            const response = await Keep.find({
+                status : true
+            })
+            .populate({
+                path: 'users_id',
+                select: 'name no_hp alamat email'
+            });
+
+            return res.send({
+                method : req.method,
+                status : true,
+                code : 200,
+                result : response
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    deleteKeep = async (req, res) => {
         try {
             const keepId = req.params.id;
+            const petId = req.body.id_pet;
+
+            await Pets.updateOne({
+                _id : petId
+            }, {
+                status : true
+            });
 
             return Keep.deleteOne({
                 _id: keepId

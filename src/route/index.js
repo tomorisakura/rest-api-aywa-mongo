@@ -56,6 +56,7 @@ route.post('/api/keep/post', new keepController().insertKeep);
 route.patch('/api/keep/update/:id', new keepController().updateKeep);
 route.delete('/api/keep/delete/:id', new keepController().deleteKeep);
 route.get('/api/keep/find/:id',new keepController().findKeepUser);
+route.get('/api/keep/find-success', new keepController().findSuccessKeep);
 
 route.get('/api/province', new provinceController().getProvince);
 route.get('/api/kabupaten/:id', new provinceController().getKabupaten);

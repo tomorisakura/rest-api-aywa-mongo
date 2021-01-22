@@ -12,7 +12,7 @@ status : on progress 🚀
 
 - [x] hashing
 - [x] jwt (still waiting for fixed data)
-- [ ] websocket (using socket io)
+- [x] firebase integrate (fcm and auth on android)
 - [x] Nodemailer (for send new password / forget password)
 - [x] Sharp (for image compressed size)
 

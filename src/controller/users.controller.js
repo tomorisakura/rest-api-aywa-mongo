@@ -29,6 +29,8 @@ class UsersController{
             const username = generate.Uniqname(name, phone);
             const address = req.body.alamat;
             const hash = bcrypt.hashSync(password, salt);
+            const email = req.body.email;
+            const uid = req.body.uid;
 
             console.log(username);
 
@@ -42,7 +44,7 @@ class UsersController{
                         method : req.method,
                         status : false,
                         code : 202,
-                        message : 'username already exists'
+                        result : null
                     })
                 } else {
                     console.log('nda ada');
@@ -51,7 +53,9 @@ class UsersController{
                         username : username,
                         no_hp : phone,
                         alamat : address,
-                        password : hash
+                        password : hash,
+                        email: email,
+                        uid_auth: uid
                     });
         
                     response.save();
@@ -61,7 +65,7 @@ class UsersController{
                         status : true,
                         code : 200,
                         results : response
-                    })
+                    });
                 }
             });
         } catch (error) {
@@ -161,7 +165,46 @@ class UsersController{
         }
     }
 
-    
+    findEmail = (req, res) => {
+        try {
+            const email = req.query.email;
+
+            console.log(email);
+
+            return Users.findOne({
+                email : email
+            })
+            .then(result => {
+                if (result !== null) {
+                    res.send({
+                        method : req.method,
+                        status : true,
+                        code : 200,
+                        token : 'jwt-token',
+                        result : result
+                    })
+                } else {
+                    res.send({
+                        method : req.method,
+                        status : false,
+                        code : 203,
+                        token : null,
+                        result : null
+                    })
+                }
+            })
+            .catch(err => {
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 203,
+                    result: err
+                })
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
 
 }
 

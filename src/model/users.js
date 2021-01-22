@@ -7,18 +7,30 @@ const users = mongoose.Schema({
     },
     username : {
         type : String,
-        required : true
+        required : false,
+        default : null
     },
     no_hp : {
+        type : String,
+        required : false,
+        default : null
+    },
+    email : {
         type : String,
         required : true
     },
     alamat : {
         type : String,
-        required : true
+        required : false,
+        default : null
     },
     password : {
         type : String,
+        required : false,
+        default : null
+    },
+    uid_auth : {
+        type: String,
         required : true
     },
     createdAt : {

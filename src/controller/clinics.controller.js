@@ -83,9 +83,12 @@ class ClincisController{
         try {
             const uniqname = req.params.uniqname;
 
+            const phone = req.body.phone;
+            const address = req.body.address;
+
             return await Clincs.updateOne({
                 uniqname : uniqname,
-            }, { $set : req.body },
+            }, {no_hp : phone, alamat: address},
             (err) => {
                 if(err) {
                     res.send({
@@ -171,7 +174,7 @@ class ClincisController{
             let mailOptions = {
                 from: 'foxie.clinic@gmail.com',
                 to: email,
-                subject: 'Reset Password Akun Foxie Clinics',
+                subject: 'Reset Password Akun Aywa Admin',
                 text: `Hallo ${uniqname} password akun kamu berhasil diubah, passwordnya : ${newPassword}`
             }
 

@@ -27,10 +27,11 @@ route.post('/api/users/post', new usersController().createUsers);
 route.patch('/api/users/update/:username', new usersController().updateUsers);
 route.delete('/api/users/delete/:username', new usersController().deleteUser);
 route.get('/api/users/login', new usersController().login);
+route.get('/api/users/auth/verify', new usersController().findEmail);
 
 route.get('/api/clinics/get', new clinicsController().get);
 route.post('/api/clinics/post', new clinicsController().createClinics);
-route.patch('/api/clinics/:uniqname', new clinicsController().updateClinics);
+route.patch('/api/clinics/update/:uniqname', new clinicsController().updateClinics);
 route.post('/api/clinics/login', new clinicsController().login);
 
 route.get('/api/clinics/reset-pw/:uniqname', new clinicsController().resetPassword);
@@ -47,12 +48,14 @@ route.get('/api/pet/get-pet/:id', new petsController().findPets);
 
 route.get('/api/types/get', new typesController().get);
 route.post('/api/types/post', new typesController().insertTypes);
-route.patch('/api/types/update/', new typesController().updateTypes);
+route.patch('/api/types/update-type/:id', new typesController().updateTypes);
+route.delete('/api/types/delete/:id', new typesController().deleteType)
 
 route.get('/api/keep/get', new keepController().getKeep);
 route.post('/api/keep/post', new keepController().insertKeep);
 route.patch('/api/keep/update/:id', new keepController().updateKeep);
 route.delete('/api/keep/delete/:id', new keepController().deleteKeep);
+route.get('/api/keep/find/:id',new keepController().findKeepUser);
 
 route.get('/api/province', new provinceController().getProvince);
 route.get('/api/kabupaten/:id', new provinceController().getKabupaten);

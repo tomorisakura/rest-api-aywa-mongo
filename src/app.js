@@ -12,13 +12,14 @@ class App extends Configure {
         privateProps.set(this.connection());
     }
 
-    run() {
-        
-        this.app.use(bodyParser.json());
-        this.app.use(bodyParser.urlencoded({ extended: false }));
-        this.app.use(route);
-        this.app.use(dir.static(__dirname +'/public'));
-        return this.app.listen(this.port, () => {
+    run = () => {
+        const app = this.app;
+        app.use(bodyParser.json());
+        app.use(bodyParser.urlencoded({ extended: false }));
+        app.use(route);
+        app.use(dir.static(__dirname +'/public'));
+
+        return app.listen(this.port, () => {
             try {
                 console.log(`Running on port ${this.port} ✌`);
             } catch (error) {

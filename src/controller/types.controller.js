@@ -61,7 +61,7 @@ class TypesController {
 
     updateTypes(req, res) {
         try {
-            const id = req.query.id;
+            const id = req.params.id;
             const types = req.body.type;
 
             return Types.updateOne({
@@ -87,6 +87,34 @@ class TypesController {
                 });
             });
 
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    deleteType = async (req, res) => {
+        try {
+            const id = req.params.id;
+
+            return Types.deleteOne({
+                _id : id
+            })
+            .then((result) => {
+                res.send({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    result : result
+                });
+            }).catch((err) => {
+                console.log(err);
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    result : err
+                });
+            });
         } catch (error) {
             throw error;
         }

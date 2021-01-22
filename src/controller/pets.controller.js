@@ -43,7 +43,9 @@ class PetsController {
 
     async get(req, res) {
         try {
-            const response = await Pets.find();
+            const response = await Pets.find()
+            .populate('types')
+            .populate('clinic');
             return res.send({
                 method : req.method,
                 status : true,
@@ -310,13 +312,16 @@ class PetsController {
             return Promise.all([findPet, deletePet])
             .then((result) => {
                 const imageOne = result[0].picture[0].pic_url;
-                //console.log(imageOne);
                 const imageTwo = result[0].picture[1].pic_url;
+                //console.log(imageOne);
+                const imageCompressOne = result[0].picture[0].pic_compress;
+                const imageCompressTwo = result[0].picture[1].pic_compress;
 
                 const pathOne = path.join(__dirname + `/../public/${imageOne}`);
                 const pathTwo = path.join(__dirname + `/../public/${imageTwo}`);
-
                 //console.log(pathOne);
+                const pathCompOne = path.join(__dirname + `/../public/${imageCompressOne}`);
+                const pathCompTwo = path.join(__dirname + `/../public/${imageCompressTwo}`);
 
                 fs.unlinkSync(pathOne, (err) => {
                     if(err) console.log(`Failed delete photos ${err}`);
@@ -328,11 +333,21 @@ class PetsController {
                     console.log('deleted path two');
                 });
 
+                fs.unlinkSync(pathCompOne, (err) => {
+                    if(err) console.log(`Failed delete photos ${err}`);
+                    console.log('deleted path comp one');
+                });
+
+                fs.unlinkSync(pathCompTwo, (err) => {
+                    if(err) console.log(`Failed delete photos ${err}`);
+                    console.log('deleted path comp two');
+                });
+
                 res.send({
                     method : req.method,
                     status : true,
                     code : 200,
-                    result : `success delete pet ${result[0].uniqname}`
+                    message : `success delete pet ${result[0].uniqname}`
                 });
 
             }).catch((err) => {
@@ -340,8 +355,7 @@ class PetsController {
                     method : req.method,
                     status : false,
                     code : 202,
-                    message : `promise failure : ${err}`,
-                    result : null
+                    message : `promise failure : ${err}`
                 });
                 
                 throw err;

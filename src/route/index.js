@@ -60,6 +60,7 @@ route.get('/api/keep/find-success', new keepController().findSuccessKeep);
 route.get('/api/keep/find-detail/:id', new keepController().findKeepDetail);
 route.get('/api/keep/find-cancel', new keepController().findAllCancelKeep);
 route.patch('/api/keep/cancel/:id', new keepController().cancelKeep);
+route.get('/api/keep/success/user/:id_user', new keepController().findUserKeepSuccess);
 
 route.get('/api/province', new provinceController().getProvince);
 route.get('/api/kabupaten/:id', new provinceController().getKabupaten);

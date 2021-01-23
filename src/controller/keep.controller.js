@@ -26,6 +26,36 @@ class KeepController {
         }
     }
 
+    findUserKeepSuccess = async (req, res) => {
+        try {
+            const id = req.params.id_user;
+
+            return Keep.find({
+                users_id : id,
+                status_keep : 'success'
+            })
+            .populate('pet_id')
+            .then(result => {
+                res.send({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    result : result
+                });
+            })
+            .catch(err => {
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    result : err
+                });
+            })
+        } catch (error) {
+            throw error;
+        }
+    }
+
     findKeepUser = (req, res) => {
         try {
             const id = req.params.id;
@@ -226,19 +256,20 @@ class KeepController {
             const id = req.params.id;
             const petId = req.body.id;
 
-            await Pets.updateOne({
+            const updateStatePet = Pets.updateOne({
                 _id: petId
             }, {
                 status : true
             });
 
-            return Keep.updateOne({
+            const updateKeepStatus = Keep.updateOne({
                 _id : id
             }, {
                 status_keep : 'cancel'
             })
-            .then(result => {
 
+            return Promise.all([updateStatePet, updateKeepStatus])
+            .then(result => {
                 const message = {
                     notification : {
                         title : 'Klinik telah ngecancel keep kamu',
@@ -260,7 +291,7 @@ class KeepController {
                     method : req.method,
                     status : true,
                     code : 200,
-                    result : result
+                    result : result[1]
                 });
             })
             .catch(err => {
@@ -270,7 +301,7 @@ class KeepController {
                     code : 202,
                     result : err
                 });
-            })
+            });
         } catch (error) {
             throw error;
         }

@@ -62,9 +62,10 @@ class PetsController {
     async getByType(req, res) {
         try {
             const typeId = req.query.id;
-            const response = await Pets.find({ types : {
-                _id : typeId
-            }  }).populate('types').populate('clinic');
+            const response = await Pets.find({
+                types : {_id : typeId},
+                status : true  
+            }).populate('types').populate('clinic');
             return res.send({
                 method : req.method,
                 status : true,
@@ -79,9 +80,9 @@ class PetsController {
     async getPetByClinic(req, res) {
         try {
             const clinicId = req.params.id;
-            const response = await Pets.find({ clinic : {
-                _id : clinicId
-            }
+            const response = await Pets.find({ 
+                clinic : {_id : clinicId},
+                status : true
             }).populate('types').lean();
             return res.send({
                 method : req.method,

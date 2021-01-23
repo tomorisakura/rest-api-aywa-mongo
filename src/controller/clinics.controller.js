@@ -181,29 +181,39 @@ class ClincisController{
                 text: `Hallo ${uniqname} password akun kamu berhasil diubah, passwordnya : ${newPassword}`
             }
 
-            return await Clincs.updateOne({
-                uniqname : uniqname
-            }, {password : hash}).then(result => {
+            return Clincs.updateOne({ uniqname : uniqname }, { password : hash })
+            .then(result => {
                 console.log(result);
 
-                transporter.sendMail(mailOptions, (err, response) => {
-                    if(err) throw err;
-                    console.log(`response : ${response}`);
-                });
+                if (result.nModified == 1) {
+                    console.log(hash);
+                    transporter.sendMail(mailOptions, (err, response) => {
+                        if(err) console.log(err);
+                        console.log(`response : ${response}`);
+                    });
 
-                res.send({
-                    method : req.method,
-                    status : true,
-                    code : 200,
-                    message : 'success reset password, please check your email'
-                })
-
-            }).catch((err) => {
+                    res.send({
+                        method : req.method,
+                        status : true,
+                        code : 200,
+                        modified : result.nModified,
+                        message : 'Password berhasil diubah !, Silahkan cek email'
+                    });
+                } else {
+                    res.send({
+                        method : req.method,
+                        status : false,
+                        code : 202,
+                        modified : result.nModified,
+                        message : 'Username tidak ditemukan !'
+                    });
+                }
+            })
+            .catch((err) => {
                 res.send({
                     method : req.method,
                     status : false,
                     code : 202,
-                    message : 'uniqname not found !',
                     err : err
                 })
             });

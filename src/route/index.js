@@ -34,7 +34,7 @@ route.post('/api/clinics/post', new clinicsController().createClinics);
 route.patch('/api/clinics/update/:uniqname', new clinicsController().updateClinics);
 route.post('/api/clinics/login', new clinicsController().login);
 
-route.get('/api/clinics/reset-pw/:uniqname', new clinicsController().resetPassword);
+route.patch('/api/clinics/reset-pw/:uniqname', new clinicsController().resetPassword);
 
 route.get('/api/clinics/find-clinic/:uniqname', new clinicsController().getClinic);
 

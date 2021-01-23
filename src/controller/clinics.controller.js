@@ -129,7 +129,8 @@ class ClincisController{
                         status : true,
                         code : 200,
                         message : 'login success',
-                        token : 'token'
+                        token : 'token',
+                        result : result
                     })
                 } else {
                     res.send({
@@ -137,7 +138,8 @@ class ClincisController{
                         status : false,
                         code : 202,
                         message : 'login failed, password not match',
-                        token : null
+                        token : null,
+                        result : null
                     });
                 }
 
@@ -148,7 +150,8 @@ class ClincisController{
                     status : false,
                     code : 202,
                     message : 'login failed, password or uniqname not match',
-                    err : err
+                    token : null,
+                    result : err
                 });
             });
         } catch (error) {

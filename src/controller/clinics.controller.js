@@ -1,3 +1,4 @@
+'use strict';
 const Clincs = require('../model/clinics');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
@@ -11,10 +12,11 @@ class ClincisController{
     async get(req, res) {
         try {
             const response = await Clincs.find();
-            return res.send({
+            return res.status(200).json({
                 method : req.method,
                 status : true,
                 code : 200,
+                token : token,
                 result : response
             });
         } catch (error) {

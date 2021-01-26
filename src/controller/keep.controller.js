@@ -1,3 +1,4 @@
+'use strict';
 const Keep = require('../model/keep');
 const Pets = require('../model/pets');
 const fbService = require('../helpers/firebase.service');
@@ -48,7 +49,8 @@ class KeepController {
                     method : req.method,
                     status : false,
                     code : 202,
-                    result : err
+                    err : err,
+                    result : []
                 });
             })
         } catch (error) {
@@ -82,7 +84,8 @@ class KeepController {
                     method : req.method,
                     status : false,
                     code : 202,
-                    result : err
+                    err : err,
+                    result : []
                 });
             });
         } catch (error) {

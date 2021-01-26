@@ -1,3 +1,4 @@
+'use strict';
 const Users = require('../model/users');
 const Generate = require('../helpers/generate');
 const bcrypt = require('bcrypt');
@@ -7,14 +8,15 @@ const generate = new Generate();
 
 class UsersController{
     
-    async get(req, res) {
+     get = async (req, res) => {
         try {
-            const response = await Users.find();
-            return res.send({
-                method : req.method,
-                status : true,
-                code : 200,
-                results : response
+            return await Users.find((err, data) => {
+                res.status(200).json({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    results : data
+                });
             });
         } catch (error) {
             throw error;
@@ -68,37 +70,6 @@ class UsersController{
                     });
                 }
             });
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    async updateUsers(req, res) {
-        try {
-            const username = req.params.username;
-
-            return await Users.update({
-                username : username
-            }, { $set: req.body },
-            (err) => {
-                if (err) {
-                    res.send({
-                        method : req.method,
-                        status : false,
-                        code : 202,
-                        message : 'failed update data',
-                        response : err
-                    })
-                } else {
-                    res.send({
-                        method : req.method,
-                        status : true,
-                        code : 200,
-                        message : 'success update data'
-                    })
-                }
-            });
-
         } catch (error) {
             throw error;
         }

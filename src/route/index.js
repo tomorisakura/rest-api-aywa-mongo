@@ -1,3 +1,4 @@
+'use strict';
 const route = require('express').Router();
 const usersController = require('../controller/users.controller');
 const clinicsController = require('../controller/clinics.controller');
@@ -5,6 +6,7 @@ const petsController = require('../controller/pets.controller');
 const typesController = require('../controller/types.controller');
 const provinceController = require('../controller/province.controller');
 const keepController = require('../controller/keep.controller');
+const auth = require('../middleware/auth');
 
 route.get('/', (req, res) => {
     res.send({
@@ -24,7 +26,6 @@ route.get('/api', (req, res) => {
 
 route.get('/api/users/get', new usersController().get);
 route.post('/api/users/post', new usersController().createUsers);
-route.patch('/api/users/update/:username', new usersController().updateUsers);
 route.delete('/api/users/delete/:username', new usersController().deleteUser);
 route.get('/api/users/login', new usersController().login);
 route.get('/api/users/auth/verify', new usersController().findEmail);

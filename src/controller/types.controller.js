@@ -1,3 +1,4 @@
+'use strict';
 const Types = require('../model/types');
 
 class TypesController {

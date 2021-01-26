@@ -1,3 +1,4 @@
+'use strict';
 const Pets = require('../model/pets');
 const Generate = require('../helpers/generate');
 const multer = require('multer');

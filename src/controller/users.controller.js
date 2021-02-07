@@ -1,8 +1,8 @@
-'use strict';
+require('dotenv').config();
 const Users = require('../model/users');
 const Generate = require('../helpers/generate');
 const bcrypt = require('bcrypt');
-
+const jwt = require('jsonwebtoken');
 const salt = bcrypt.genSaltSync(10);
 const generate = new Generate();
 
@@ -10,13 +10,12 @@ class UsersController{
     
      get = async (req, res) => {
         try {
-            return await Users.find((err, data) => {
-                res.status(200).json({
-                    method : req.method,
-                    status : true,
-                    code : 200,
-                    results : data
-                });
+            const response = await Users.find();
+            res.status(200).send({
+                method : req.method,
+                status : true,
+                code : 200,
+                results : response
             });
         } catch (error) {
             throw error;
@@ -33,7 +32,6 @@ class UsersController{
             const hash = bcrypt.hashSync(password, salt);
             const email = req.body.email;
             const uid = req.body.uid;
-
             console.log(username);
 
             Users.findOne({
@@ -46,8 +44,9 @@ class UsersController{
                         method : req.method,
                         status : false,
                         code : 202,
+                        token : null,
                         result : null
-                    })
+                    });
                 } else {
                     console.log('nda ada');
                     const response = new Users({
@@ -59,13 +58,14 @@ class UsersController{
                         email: email,
                         uid_auth: uid
                     });
-        
+                    
                     response.save();
-        
-                    res.send({
+                    const token = jwt.sign({ payload : response.email }, process.env.SECRET_KEY, { expiresIn: '9999 years' });
+                    res.status(200).send({
                         method : req.method,
                         status : true,
                         code : 200,
+                        token : `Grevi ${token}`,
                         results : response
                     });
                 }
@@ -92,7 +92,7 @@ class UsersController{
                         status : true,
                         code : 200,
                         message : 'login success',
-                        token : 'jwt token'
+                        token : 'jwt-token'
                     });
                 } else {
                     res.send({
@@ -139,21 +139,20 @@ class UsersController{
     findEmail = (req, res) => {
         try {
             const email = req.query.email;
-
-            console.log(email);
-
-            return Users.findOne({
+            Users.findOne({
                 email : email
             })
             .then(result => {
                 if (result !== null) {
+                    console.log(`logged ${result.name}`);
+                    const token = jwt.sign({ payload : result.email }, process.env.SECRET_KEY, { expiresIn: '9999 years' });
                     res.send({
                         method : req.method,
                         status : true,
                         code : 200,
-                        token : 'jwt-token',
+                        token : `Grevi ${token}`,
                         result : result
-                    })
+                    });
                 } else {
                     res.send({
                         method : req.method,
@@ -161,10 +160,11 @@ class UsersController{
                         code : 203,
                         token : null,
                         result : null
-                    })
+                    });
                 }
             })
             .catch(err => {
+                console.log(err);
                 res.send({
                     method : req.method,
                     status : false,

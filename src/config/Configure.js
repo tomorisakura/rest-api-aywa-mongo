@@ -1,10 +1,11 @@
 'use strict';
 const mongoose = require('mongoose');
+require('dotenv').config();
 
 class Configure {
     connection() {
         try {
-            const connect = mongoose.connect('mongodb://localhost:27017/aywa_db', {
+            const connect = mongoose.connect(process.env.DB_HOST, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true
             });

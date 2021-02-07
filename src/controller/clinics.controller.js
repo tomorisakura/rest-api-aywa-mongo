@@ -1,9 +1,10 @@
 'use strict';
+require('dotenv').config();
 const Clincs = require('../model/clinics');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
+const jwt = require('jsonwebtoken');
 const Generate = require('../helpers/generate');
-
 const salt = bcrypt.genSaltSync(10);
 const generate = new Generate();
 
@@ -12,11 +13,10 @@ class ClincisController{
     async get(req, res) {
         try {
             const response = await Clincs.find();
-            return res.status(200).json({
+            return res.status(200).send({
                 method : req.method,
                 status : true,
                 code : 200,
-                token : token,
                 result : response
             });
         } catch (error) {
@@ -65,11 +65,12 @@ class ClincisController{
                     });
         
                     response.save();
-        
+                    const token = jwt.sign({ payload : response.uniqname }, process.env.SECRET_KEY, { expiresIn: '9999 years' });
                     res.send({
                         method : req.method,
                         status : true,
                         code : 200,
+                        token: `Grevi ${token}`,
                         result : response
                     });
                 }
@@ -124,14 +125,14 @@ class ClincisController{
             }).then(result => {
                 const dbPassword = result[0].password;
                 const match = bcrypt.compareSync(password, dbPassword);
-
+                const token = jwt.sign({ payload : result[0].uniqname }, process.env.SECRET_KEY, { expiresIn: '9999 years' });
                 if(match) {
                     res.send({
                         method : req.method,
                         status : true,
                         code : 200,
                         message : 'login success',
-                        token : 'token',
+                        token : `Grevi ${token}`,
                         result : result
                     })
                 } else {
@@ -171,8 +172,8 @@ class ClincisController{
             let transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
-                    user: 'foxie.clinic@gmail.com',
-                    pass: 'kyokosakura18'
+                    user: process.env.NODEMAILER_SMTP,
+                    pass: process.env.NODEMAILER_KEY
                 }
             });
 

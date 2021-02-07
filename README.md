@@ -9,13 +9,15 @@ this service dedicated for this app [Aywa Pet](https://github.com/tomorisakura/a
 
 ### Todo
 
-- done*
+- Clone
+- ```npm install```
+- ```nodemon index.js```
 
 **feature**
 
-- [x] hashing
-- [x] jwt (still waiting for fixed data)
-- [x] firebase integrate (fcm and auth on android)
+- [x] Hashing
+- [x] JWT (still waiting for fixed data)
+- [x] Firebase (fcm and auth on android)
 - [x] Nodemailer (for send new password / forget password)
 - [x] Sharp (for image compressed size)
 
@@ -34,3 +36,4 @@ OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO 
 FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
+---

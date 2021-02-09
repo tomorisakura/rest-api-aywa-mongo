@@ -1,4 +1,3 @@
-'use strict';
 const Pets = require('../model/pets');
 const Generate = require('../helpers/generate');
 const multer = require('multer');
@@ -6,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const mv = require('mv');
 const sharp = require('sharp');
+const fbService = require('../helpers/firebase.service');
 
 const generate = new Generate();
 
@@ -39,6 +39,8 @@ function checkFile(file, cb) {
         throw error;
     }
 }
+
+const fbStorage = fbService.storage().bucket();
 
 class PetsController {
 
@@ -148,11 +150,13 @@ class PetsController {
                             const image = [{
                                 pic_name : imageOne,
                                 pic_url : `images/${imageOne}`,
-                                pic_compress : `compressed/${imageOne}`
+                                pic_compress : `compressed/${imageOne}`,
+                                pic_storage : `https://firebasestorage.googleapis.com/v0/b/aywa-pet.appspot.com/o/${imageOne}?alt=media&token=grevi-123`
                             },{
                                 pic_name : imageTwo,
                                 pic_url : `images/${imageTwo}`,
-                                pic_compress : `compressed/${imageTwo}`
+                                pic_compress : `compressed/${imageTwo}`,
+                                pic_storage : `https://firebasestorage.googleapis.com/v0/b/aywa-pet.appspot.com/o/${imageTwo}?alt=media&token=grevi-123`
                             }];
 
                             setTimeout(() => {
@@ -189,9 +193,21 @@ class PetsController {
                                 });
     
                                 response.save();
-
-                                console.log(clinic);
-                                console.log(type);
+                                file.map(result => {
+                                    const metadata = {
+                                        metadata: {
+                                            firebaseStorageDownloadTokens: 'aywa-grevi',
+                                        },
+                                        contentType: 'image/png',
+                                        cacheControl: 'public, max-age=31536000'
+                                    }
+                        
+                                    fbStorage.upload(result.path, {
+                                        gzip: true,
+                                        metadata: metadata
+                                    });
+                                    console.log(`Saved ${result.filename}`);
+                                });
                                 console.log("saved");
     
                                 res.status(200).send({
@@ -219,6 +235,31 @@ class PetsController {
         } catch (error) {
             throw error;
         }
+    }
+
+    uploadDummy(req, res) {
+        upload(req, res, (err) => {
+            if(err) throw err;
+            const file = req.files
+            file.map(result => {
+                const metadata = {
+                    metadata: {
+                        firebaseStorageDownloadTokens: 'aywa-grevi',
+                    },
+                    contentType: 'image/png',
+                    cacheControl: 'public, max-age=31536000'
+                }
+    
+                fbStorage.upload(result.path, {
+                    gzip: true,
+                    metadata: metadata
+                });
+            })
+            
+            res.send({
+                result : `Image uploaded`
+            });
+        });
     }
 
     async updatePets(req, res) {

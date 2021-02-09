@@ -5,7 +5,7 @@ require('dotenv').config();
 class Configure {
     connection() {
         try {
-            const connect = mongoose.connect(process.env.DB_HOST, {
+            const connect = mongoose.connect(process.env.DB_HOST_MONGO_PROD, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true
             });

@@ -14,6 +14,7 @@ const pets = mongoose.Schema({
         pic_name : String,
         pic_url : String,
         pic_compress : String,
+        pic_storage: String,
         required : false
     }],
     nama_peliharaan : {

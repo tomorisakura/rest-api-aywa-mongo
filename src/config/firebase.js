@@ -8,8 +8,4 @@ const firebaseConfig = {
     measurementId: "G-NQ5WS07D73"
 }
 
-  // Initialize Firebase
-//   firebase.initializeApp(firebaseConfig);
-//   firebase.analytics();
-
 module.exports = firebaseConfig;

@@ -139,10 +139,12 @@ class UsersController{
     findEmail = (req, res) => {
         try {
             const email = req.query.email;
+            console.log(email);
             Users.findOne({
                 email : email
             })
             .then(result => {
+                console.log(result);
                 if (result !== null) {
                     console.log(`logged ${result.name}`);
                     const token = jwt.sign({ payload : result.email }, process.env.SECRET_KEY, { expiresIn: '9999 years' });

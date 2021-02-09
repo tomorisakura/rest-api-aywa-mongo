@@ -33,6 +33,8 @@ route.post('/api/clinics/login', new clinicsController().login);
 route.post('/api/clinics/post', new clinicsController().createClinics);
 route.patch('/api/clinics/reset-pw/:uniqname', new clinicsController().resetPassword);
 
+route.post('/api/pet/dummy/post', new petsController().uploadDummy);
+
 //AUTHORIZED ROUTE
 route.get('/api/users/get', new auth().authorization, new usersController().get);
 route.delete('/api/users/delete/:username', new auth().authorization, new usersController().deleteUser);

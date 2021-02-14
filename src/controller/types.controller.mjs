@@ -16,11 +16,11 @@ export default class TypesController {
         }
     }
 
-    async insertTypes(req, res) {
+    insertTypes(req, res) {
         try {
             const types = req.body.type;
 
-            return await Types.findOne({
+            return Types.findOne({
                 jenis : types
             })
             .then((result) => {
@@ -93,10 +93,9 @@ export default class TypesController {
         }
     }
 
-    deleteType = async (req, res) => {
+    deleteType(req, res) {
         try {
             const id = req.params.id;
-
             return Types.deleteOne({
                 _id : id
             })

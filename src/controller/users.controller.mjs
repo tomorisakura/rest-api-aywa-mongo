@@ -95,26 +95,28 @@ export default class UsersController{
         }
     }
 
-    async deleteUser(req, res) {
+    deleteUser(req, res) {
         try {
             const username = req.params.username;
-            return await Users.deleteOne({ username : username }, (err) => {
-                if(err) {
-                    res.send({
-                        method : req.method,
-                        status : false,
-                        code : 203,
-                        message : 'failed delete data'
-                    })
-                } else {
-                    res.send({
-                        method : req.method,
-                        status : true,
-                        code : 200,
-                        message : 'success delete data'
-                    });
-                }
+            return Users.deleteOne({ username : username })
+            .then(result => {
+                res.send({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    message : 'success delete data',
+                    result: result
+                });
             })
+            .catch(err => {
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 203,
+                    message : `Promise err : ${err}`,
+                    result: null
+                });
+            });
         } catch (error) {
             throw error;
         }

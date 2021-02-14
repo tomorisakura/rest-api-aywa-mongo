@@ -44,55 +44,91 @@ function checkFile(file, cb) {
 
 export default class PetsController {
 
-    async get(req, res) {
+    get(req, res) {
         try {
-            const response = await Pets.find({
+            return Pets.find({
                 status : true
             })
             .populate('types')
-            .populate('clinic');
-            return res.send({
-                method : req.method,
-                status : true,
-                code : 200,
-                result : response
+            .populate('clinic')
+            .then(result => {
+                res.status(200).json({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    result : result
+                });
             })
+            .catch(err => {
+                res.json({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    message : `Promise err : ${err}`,
+                    result : null
+                });
+            });
         } catch (error) {
             throw error;
         }
     }
 
-    async getByType(req, res) {
+    getByType(req, res) {
         try {
             const typeId = req.query.id;
-            const response = await Pets.find({
-                types : {_id : typeId},
-                status : true  
-            }).populate('types').populate('clinic');
-            return res.send({
-                method : req.method,
-                status : true,
-                code : 200,
-                result : response
+            return Pets.find({
+                types : { _id : typeId },
+                status : true
             })
+            .populate('types')
+            .populate('clinic')
+            .then(result => {
+                res.status(200).json({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    result : result
+                });
+            })
+            .catch(err => {
+                res.json({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    message: `Promise err : ${err}`,
+                    result : null
+                });
+            });
         } catch (error) {
             throw error;
         }
     }
 
-    async getPetByClinic(req, res) {
+    getPetByClinic(req, res) {
         try {
             const clinicId = req.params.id;
-            const response = await Pets.find({ 
+            return Pets.find({ 
                 clinic : {_id : clinicId},
                 status : true
-            }).populate('types').lean();
-            return res.send({
-                method : req.method,
-                status : true,
-                code : 200,
-                result : response
+            }).populate('types')
+            .lean()
+            .then(result => {
+                res.json({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    result : result
+                });
             })
+            .catch(err => {
+                res.json({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    message: `Promise err : ${err}`,
+                    result : null
+                });
+            });
         } catch (error) {
             throw error;
         }
@@ -255,20 +291,33 @@ export default class PetsController {
         }
     }
 
-    async findPets(req, res) {
+    findPets(req, res) {
         try {
             const id = req.params.id;
 
-            const response = await Pets.findOne({
+            return Pets.findOne({
                 _id : id
-            }).populate('types').populate('clinic').lean();
-
-            return res.send({
-                method : req.method,
-                status : true,
-                code : 200,
-                result : response
-            });
+            })
+            .populate('types')
+            .populate('clinic')
+            .lean()
+            .then(result => {
+                res.send({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    result : result
+                });
+            })
+            .catch(err => {
+                res.json({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    message: `Promise err : ${err}`,
+                    result : null
+                });
+            })
 
         } catch (error) {
             throw error;

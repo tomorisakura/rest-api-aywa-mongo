@@ -15,7 +15,7 @@ export default class KeepController {
             })
             .populate('pet_id');
 
-            return res.send({
+            return res.status(200).json({
                 method : req.method,
                 status : true,
                 code : 200,
@@ -26,7 +26,7 @@ export default class KeepController {
         }
     }
 
-    async findUserKeepSuccess(req, res) {
+    findUserKeepSuccess(req, res) {
         try {
             const id = req.params.id_user;
 
@@ -36,7 +36,7 @@ export default class KeepController {
             })
             .populate('pet_id')
             .then(result => {
-                res.send({
+                res.status(200).json({
                     method : req.method,
                     status : true,
                     code : 200,
@@ -44,7 +44,7 @@ export default class KeepController {
                 });
             })
             .catch(err => {
-                res.send({
+                res.json({
                     method : req.method,
                     status : false,
                     code : 202,
@@ -71,7 +71,7 @@ export default class KeepController {
             })
             .populate('pet_id')
             .then(result => {
-                res.send({
+                res.status(200).json({
                     method : req.method,
                     status : true,
                     code : 200,
@@ -79,7 +79,7 @@ export default class KeepController {
                 });
             })
             .catch(err => {
-                res.send({
+                res.json({
                     method : req.method,
                     status : false,
                     code : 202,
@@ -104,7 +104,7 @@ export default class KeepController {
             })
             .populate('pet_id')
             .then(result => {
-                res.send({
+                res.status(200).json({
                     method : req.method,
                     status : true,
                     code : 200,
@@ -112,7 +112,7 @@ export default class KeepController {
                 });
             })
             .catch(err => {
-                res.send({
+                res.json({
                     method : req.method,
                     status : false,
                     code : 202,
@@ -157,7 +157,7 @@ export default class KeepController {
                 console.log('Error message :'+err);
             });
 
-            return res.send({
+            return res.status(200).json({
                 method : req.method,
                 status : true,
                 code : 200,
@@ -194,14 +194,14 @@ export default class KeepController {
                     console.log('Error message :'+err);
                 });
 
-                res.send({
+                res.status(200).json({
                     method : req.method,
                     status : true,
                     code : 200,
                     result : result
                 });
             }).catch((err) => {
-                res.send({
+                res.json({
                     method : req.method,
                     status : false,
                     code : 202,
@@ -213,9 +213,9 @@ export default class KeepController {
         }
     }
 
-    async findSuccessKeep(req, res) {
+    findSuccessKeep(req, res) {
         try {
-            const response = await Keep.find({
+            return Keep.find({
                 state : true
             })
             .populate({
@@ -223,12 +223,22 @@ export default class KeepController {
                 select: 'name no_hp alamat email'
             })
             .populate('pet_id')
-
-            return res.send({
-                method : req.method,
-                status : true,
-                code : 200,
-                result : response
+            .then(result => {
+                res.status(200).json({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    result : result
+                });
+            })
+            .catch(err => {
+                res.json({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    message: `Promise err : ${err}`,
+                    result : null
+                });
             });
         } catch (error) {
             throw error;
@@ -236,7 +246,7 @@ export default class KeepController {
     }
 
     //cancel keep triggerd btn cancel
-    async cancelKeep(req, res) {
+    cancelKeep(req, res) {
         try {
             const id = req.params.id;
             const petId = req.body.id;
@@ -263,7 +273,7 @@ export default class KeepController {
                     console.log('Error message :'+err);
                 });
 
-                res.send({
+                res.json({
                     method : req.method,
                     status : true,
                     code : 200,
@@ -271,7 +281,7 @@ export default class KeepController {
                 });
             })
             .catch(err => {
-                res.send({
+                res.json({
                     method : req.method,
                     status : false,
                     code : 202,
@@ -295,7 +305,7 @@ export default class KeepController {
             })
             .populate('pet_id')
             .then(result => {
-                res.send({
+                res.json({
                     method : req.method,
                     status : true,
                     code : 200,
@@ -303,7 +313,7 @@ export default class KeepController {
                 });
             })
             .catch(err => {
-                res.send({
+                res.json({
                     method : req.method,
                     status : true,
                     code : 200,
@@ -324,14 +334,14 @@ export default class KeepController {
                 _id: keepId
             })
             .then((result) => {
-                res.send({
+                res.json({
                     method : req.method,
                     status : true,
                     code : 200,
                     result : result
                 });
             }).catch((err) => {
-                res.send({
+                res.json({
                     method : req.method,
                     status : false,
                     code : 202,

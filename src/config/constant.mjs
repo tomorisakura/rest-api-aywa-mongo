@@ -6,7 +6,7 @@ export const firebaseConfig = {
     messagingSenderId: "302899124395",
     appId: "1:302899124395:web:0cc505dce933ea8bb0bfee",
     measurementId: "G-NQ5WS07D73"
-}
+};
 
 export const firebaseSdk = {
     type: "service_account",
@@ -19,6 +19,6 @@ export const firebaseSdk = {
     token_uri: "https://oauth2.googleapis.com/token",
     auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
     client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-eqs0y%40aywa-pet.iam.gserviceaccount.com"
-}
+};
 
 export const baseUrl = `https://ibnux.github.io/data-indonesia`;

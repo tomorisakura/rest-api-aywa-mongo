@@ -14,7 +14,7 @@ export default class ClinicsController{
     async get(req, res) {
         try {
             const response = await Clincs.find();
-            return res.status(200).send({
+            return res.status(200).json({
                 method : req.method,
                 status : true,
                 code : 200,
@@ -37,7 +37,7 @@ export default class ClinicsController{
             const hash = bcrypt.hashSync(password, salt);
             console.log(uniqname);
 
-            const response = new Clincs({
+            const response = await new Clincs({
                 clinic_name : clinic,
                 uniqname : uniqname,
                 no_strv : strv,
@@ -49,7 +49,7 @@ export default class ClinicsController{
             response.save();
 
             const token = jwt.sign({ payload : response.uniqname }, process.env.ACCESS_TOKEN_KEY, { expiresIn: '9999 years' });
-            res.send({
+            res.status(200).json({
                 method : req.method,
                 status : true,
                 code : 200,
@@ -63,7 +63,7 @@ export default class ClinicsController{
         }
     }
 
-    async updateClinics(req, res) {
+    updateClinics(req, res) {
         try {
             const uniqname = req.params.uniqname;
 
@@ -72,7 +72,7 @@ export default class ClinicsController{
 
             return Clincs.findByIdAndUpdate({ uniqname : uniqname }, {no_hp : phone, alamat: address})
             .then(result => {
-                res.send({ 
+                res.status(200).json({ 
                     method : req.method,
                     status : true,
                     code : 200,
@@ -81,10 +81,10 @@ export default class ClinicsController{
                 });
             })
             .catch(err => {
-                res.send({
+                res.status(404).json({
                     method : req.method,
                     status : false,
-                    code : 202,
+                    code : 404,
                     message : 'failed update data',
                     response : err
                 })
@@ -94,19 +94,19 @@ export default class ClinicsController{
         }
     }
 
-    async login(req, res) {
+    login(req, res) {
         try {
             const uniqname = req.body.uniqname;
             const password = req.body.password;
 
-            return await Clincs.find({
+            return Clincs.find({
                 uniqname : uniqname
             }).then(result => {
                 const dbPassword = result[0].password;
                 const match = bcrypt.compareSync(password, dbPassword);
                 const token = jwt.sign({ payload : result[0].uniqname }, process.env.ACCESS_TOKEN_KEY, { expiresIn: '9999 years' });
                 if(match) {
-                    res.send({
+                    res.status(200).json({
                         method : req.method,
                         status : true,
                         code : 200,
@@ -115,10 +115,10 @@ export default class ClinicsController{
                         result : result
                     })
                 } else {
-                    res.send({
+                    res.status(404).json({
                         method : req.method,
                         status : false,
-                        code : 202,
+                        code : 404,
                         message : 'login failed, password not match',
                         token : null,
                         result : null
@@ -127,7 +127,7 @@ export default class ClinicsController{
 
             })
             .catch(err => {
-                res.send({
+                res.json({
                     method : req.method,
                     status : false,
                     code : 202,
@@ -141,7 +141,7 @@ export default class ClinicsController{
         }
     }
 
-    async resetPassword(req, res) {
+    resetPassword(req, res) {
         try {
             const uniqname = req.params.uniqname;
             const email = req.body.email;
@@ -170,7 +170,7 @@ export default class ClinicsController{
 
             return Clincs.updateOne({ uniqname : uniqname }, { password : hash })
             .then(result => {
-                console.log(result);
+                //console.log(result);
 
                 if (result.nModified == 1) {
                     console.log(hash);
@@ -179,7 +179,7 @@ export default class ClinicsController{
                         console.log(`response : ${response}`);
                     });
 
-                    res.send({
+                    res.status(200).json({
                         method : req.method,
                         status : true,
                         code : 200,
@@ -187,22 +187,23 @@ export default class ClinicsController{
                         message : 'Password berhasil diubah !, Silahkan cek email'
                     });
                 } else {
-                    res.send({
+
+                    res.status(404).json({
                         method : req.method,
                         status : false,
-                        code : 202,
+                        code : 404,
                         modified : result.nModified,
                         message : 'Username tidak ditemukan !'
                     });
                 }
             })
             .catch((err) => {
-                res.send({
+                res.json({
                     method : req.method,
                     status : false,
                     code : 202,
                     err : `Promise err : ${err}`
-                })
+                });
             });
                         
         } catch (error) {
@@ -220,14 +221,14 @@ export default class ClinicsController{
                 uniqname : uniqname
             })
             .then((result) => {
-                res.send({
+                res.status(200).json({
                     method : req.method,
                     status : true,
                     code : 200,
                     result : result
                 }); 
             }).catch((err) => {
-                res.send({
+                res.json({
                     method : req.method,
                     status : false,
                     code : 202,
@@ -242,20 +243,20 @@ export default class ClinicsController{
 
     sendDummyMail(req, res) {
         let transporter = nodemailer.createTransport(smtpTransporter({
-            host: 'mail.aywaservice.top',
+            host: process.env.NODEMAILER_HOST,
             secure: false,
             tls: {
                 rejectUnauthorized: false
             },
             port: 587,
             auth: {
-                user: 'asisten.foxie@aywaservice.top',
-                pass: 'matematika18'
+                user: process.env.NODEMAILER_SMTP,
+                pass: process.env.NODEMAILER_KEY
             }
         }));
 
         let mailOptions = {
-            from: 'asisten.foxie@aywaservice.top',
+            from: process.env.NODEMAILER_SMTP,
             to: 'resky67@gmail.com',
             subject: 'Reset Password Akun Aywa Admin',
             text: `Hallo...`

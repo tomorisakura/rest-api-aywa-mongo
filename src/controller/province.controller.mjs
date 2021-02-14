@@ -1,12 +1,12 @@
-const axios = require('axios');
-const url = require('../helpers/url');
+import axios from 'axios';
+import { baseUrl } from '../config/constant.mjs';
 
-class Province {
+export default class Province {
 
     getProvince = async (req, res) => {
         try {
             
-            const response = await axios.get(`${url}/propinsi.json`);
+            const response = await axios.get(`${baseUrl}/propinsi.json`);
             //console.log(response.data);
             res.send({
                 method : req.method,
@@ -22,7 +22,7 @@ class Province {
     getKabupaten = async (req, res) => {
         try {
             const params = req.params.id;
-            const response = await axios.get(`${url}/kabupaten/${params}.json`);
+            const response = await axios.get(`${baseUrl}/kabupaten/${params}.json`);
 
             res.send({
                 method : req.method,
@@ -38,7 +38,7 @@ class Province {
     getKecamatan = async (req, res) => {
         try {
             const params = req.params.id;
-            const response = await axios.get(`${url}/kecamatan/${params}.json`);
+            const response = await axios.get(`${baseUrl}/kecamatan/${params}.json`);
 
             res.send({
                 method : req.method,
@@ -53,5 +53,3 @@ class Province {
     }
 
 }
-
-module.exports = Province;

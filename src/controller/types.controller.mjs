@@ -1,7 +1,7 @@
-'use strict';
-const Types = require('../model/types');
+import Types from '../model/types.mjs';
 
-class TypesController {
+export default class TypesController {
+    
     async get(req, res) {
         try {
             const response = await Types.find();
@@ -121,5 +121,3 @@ class TypesController {
         }
     }
 }
-
-module.exports = TypesController;

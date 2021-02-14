@@ -1,14 +1,15 @@
-'use strict';
-require('dotenv').config();
-const Clincs = require('../model/clinics');
-const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
-const jwt = require('jsonwebtoken');
-const Generate = require('../helpers/generate');
-const salt = bcrypt.genSaltSync(10);
-const generate = new Generate();
+import dotenv from 'dotenv';
+import Clincs from '../model/clinics.mjs';
+import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
+import jwt from 'jsonwebtoken';
+import smtpTransporter from 'nodemailer-smtp-transport';
+import { Uniqname } from '../helpers/generate.mjs';
+dotenv.config();
 
-class ClincisController{
+const salt = bcrypt.genSaltSync(10);
+
+export default class ClinicsController{
 
     async get(req, res) {
         try {
@@ -32,48 +33,28 @@ class ClincisController{
             const address = req.body.address;
             const email = req.body.email;
             const password = req.body.password;
-            const uniqname = generate.Uniqname(clinic, strv);
+            const uniqname = Uniqname(clinic, strv);
             const hash = bcrypt.hashSync(password, salt);
             console.log(uniqname);
 
-            Clincs.findOne({
-                uniqname : uniqname
-            })
-            .then(result => {
-                if(result) {
-                    console.log(result);
-                    console.log('ada');
+            const response = new Clincs({
+                clinic_name : clinic,
+                uniqname : uniqname,
+                no_strv : strv,
+                email : email,
+                no_hp : phone,
+                alamat : address,
+                password : hash
+            });
+            response.save();
 
-                    res.send({
-                        method : req.method,
-                        status : false,
-                        code : 202,
-                        message : 'username already exists'
-                    });
-                } else {
-                    console.log(result);
-                    console.log('nda ada');
-
-                    const response = new Clincs({
-                        clinic_name : clinic,
-                        uniqname : uniqname,
-                        no_strv : strv,
-                        email : email,
-                        no_hp : phone,
-                        alamat : address,
-                        password : hash
-                    });
-        
-                    response.save();
-                    const token = jwt.sign({ payload : response.uniqname }, process.env.SECRET_KEY, { expiresIn: '9999 years' });
-                    res.send({
-                        method : req.method,
-                        status : true,
-                        code : 200,
-                        token: `Grevi ${token}`,
-                        result : response
-                    });
-                }
+            const token = jwt.sign({ payload : response.uniqname }, process.env.ACCESS_TOKEN_KEY, { expiresIn: '9999 years' });
+            res.send({
+                method : req.method,
+                status : true,
+                code : 200,
+                token: `Grevi ${token}`,
+                result : response
             });
 
 
@@ -89,27 +70,25 @@ class ClincisController{
             const phone = req.body.phone;
             const address = req.body.address;
 
-            return await Clincs.updateOne({
-                uniqname : uniqname,
-            }, {no_hp : phone, alamat: address},
-            (err) => {
-                if(err) {
-                    res.send({
-                        method : req.method,
-                        status : false,
-                        code : 202,
-                        message : 'failed update data',
-                        response : err
-                    })
-                } else {
-                    res.send({ 
-                        method : req.method,
-                        status : true,
-                        code : 200,
-                        message : 'success update data'
-                    });
-                }
+            return Clincs.findByIdAndUpdate({ uniqname : uniqname }, {no_hp : phone, alamat: address})
+            .then(result => {
+                res.send({ 
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    message : 'success update data',
+                    result: result
+                });
             })
+            .catch(err => {
+                res.send({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    message : 'failed update data',
+                    response : err
+                })
+            });
         } catch (error) {
             throw error;
         }
@@ -125,7 +104,7 @@ class ClincisController{
             }).then(result => {
                 const dbPassword = result[0].password;
                 const match = bcrypt.compareSync(password, dbPassword);
-                const token = jwt.sign({ payload : result[0].uniqname }, process.env.SECRET_KEY, { expiresIn: '9999 years' });
+                const token = jwt.sign({ payload : result[0].uniqname }, process.env.ACCESS_TOKEN_KEY, { expiresIn: '9999 years' });
                 if(match) {
                     res.send({
                         method : req.method,
@@ -169,20 +148,25 @@ class ClincisController{
             const newPassword = req.body.new_password;
             const hash = bcrypt.hashSync(newPassword, salt);
 
-            let transporter = nodemailer.createTransport({
-                service: 'gmail',
+            let transporter = nodemailer.createTransport(smtpTransporter({
+                host: process.env.NODEMAILER_HOST,
+                secure: false,
+                tls: {
+                    rejectUnauthorized: false
+                },
+                port: 587,
                 auth: {
                     user: process.env.NODEMAILER_SMTP,
                     pass: process.env.NODEMAILER_KEY
                 }
-            });
+            }));
 
             let mailOptions = {
-                from: 'foxie.clinic@gmail.com',
+                from: process.env.NODEMAILER_SMTP,
                 to: email,
                 subject: 'Reset Password Akun Aywa Admin',
                 text: `Hallo ${uniqname} password akun kamu berhasil diubah, passwordnya : ${newPassword}`
-            }
+            };
 
             return Clincs.updateOne({ uniqname : uniqname }, { password : hash })
             .then(result => {
@@ -217,7 +201,7 @@ class ClincisController{
                     method : req.method,
                     status : false,
                     code : 202,
-                    err : err
+                    err : `Promise err : ${err}`
                 })
             });
                         
@@ -255,7 +239,34 @@ class ClincisController{
             throw error;
         }
     }
+
+    sendDummyMail(req, res) {
+        let transporter = nodemailer.createTransport(smtpTransporter({
+            host: 'mail.aywaservice.top',
+            secure: false,
+            tls: {
+                rejectUnauthorized: false
+            },
+            port: 587,
+            auth: {
+                user: 'asisten.foxie@aywaservice.top',
+                pass: 'matematika18'
+            }
+        }));
+
+        let mailOptions = {
+            from: 'asisten.foxie@aywaservice.top',
+            to: 'resky67@gmail.com',
+            subject: 'Reset Password Akun Aywa Admin',
+            text: `Hallo...`
+        };
+
+        transporter.sendMail(mailOptions, (err, response) => {
+            if(err) console.log(err);
+            console.log(`response : ${response}`);
+        });
+
+        res.end();
+    }
      
 }
-
-module.exports = ClincisController;

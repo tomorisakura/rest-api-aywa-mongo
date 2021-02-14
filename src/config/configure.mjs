@@ -1,11 +1,11 @@
-'use strict';
-const mongoose = require('mongoose');
-require('dotenv').config();
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
 
 class Configure {
     connection() {
         try {
-            const connect = mongoose.connect(process.env.DB_HOST_MONGO_PROD, {
+            const connect = mongoose.connect(process.env.DB_HOST, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true
             });
@@ -18,4 +18,4 @@ class Configure {
     }
 }
 
-module.exports = Configure;
+export default Configure;

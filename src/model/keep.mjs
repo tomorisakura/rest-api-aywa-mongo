@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { ObjectId } = mongoose.Schema.Types;
 
 const keep = mongoose.Schema({
@@ -33,4 +33,4 @@ const keep = mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Keep', keep);
+export default mongoose.model('Keep', keep);

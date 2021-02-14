@@ -1,10 +1,12 @@
-const Configure = require('./config/Configure');
-const route = require('./route/index');
-const bodyParser = require('body-parser');
-const dir = require('express');
+import Configure from './config/configure.mjs';
+import bodyParser from 'body-parser';
+import {dirname} from 'path';
+import {fileURLToPath} from 'url';
+import route from './route/index.mjs';
+import dir from 'express';
 const privateProps = new WeakMap();
 
-class App extends Configure {
+export default class App extends Configure {
     constructor(app, port) {
         super();
         this.app = app;
@@ -14,12 +16,15 @@ class App extends Configure {
 
     run = () => {
         const app = this.app;
+        const port = this.port;
+        const __dirname = dirname(fileURLToPath(import.meta.url));
+
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({ extended: false }));
         app.use(route);
         app.use(dir.static(__dirname +'/public'));
 
-        return app.listen(this.port, () => {
+        return app.listen(port, () => {
             try {
                 console.log(`Running on port ${this.port} ✌`);
             } catch (error) {
@@ -28,5 +33,3 @@ class App extends Configure {
         });
     }
 }
-
-module.exports = App;

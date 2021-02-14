@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const types = mongoose.Schema({
     jenis: {
@@ -15,8 +15,6 @@ const types = mongoose.Schema({
         required : false,
         default : null
     }
-
-
 });
 
-module.exports = mongoose.model('Types', types);
+export default mongoose.model('Types', types);

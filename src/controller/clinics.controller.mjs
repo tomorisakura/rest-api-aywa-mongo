@@ -1,13 +1,11 @@
 import dotenv from 'dotenv';
 import Clincs from '../model/clinics.mjs';
-import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
 import smtpTransporter from 'nodemailer-smtp-transport';
 import { Uniqname } from '../helpers/generate.mjs';
+import { hashCrypt, compareCrypt } from '../helpers/crypt.mjs';
 dotenv.config();
-
-const salt = bcrypt.genSaltSync(10);
 
 export default class ClinicsController{
 
@@ -34,7 +32,7 @@ export default class ClinicsController{
             const email = req.body.email;
             const password = req.body.password;
             const uniqname = Uniqname(clinic, strv);
-            const hash = bcrypt.hashSync(password, salt);
+            const hash = hashCrypt(password);
             console.log(uniqname);
 
             const response = await new Clincs({
@@ -53,6 +51,7 @@ export default class ClinicsController{
                 method : req.method,
                 status : true,
                 code : 200,
+                acc_token: process.env.ACCESS_TOKEN_KEY,
                 token: `Grevi ${token}`,
                 result : response
             });
@@ -103,7 +102,7 @@ export default class ClinicsController{
                 uniqname : uniqname
             }).then(result => {
                 const dbPassword = result[0].password;
-                const match = bcrypt.compareSync(password, dbPassword);
+                const match = compareCrypt(password, dbPassword);
                 const token = jwt.sign({ payload : result[0].uniqname }, process.env.ACCESS_TOKEN_KEY, { expiresIn: '9999 years' });
                 if(match) {
                     res.status(200).json({
@@ -111,6 +110,7 @@ export default class ClinicsController{
                         status : true,
                         code : 200,
                         message : 'login success',
+                        acc_token: process.env.ACCESS_TOKEN_KEY,
                         token : `Grevi ${token}`,
                         result : result
                     })
@@ -146,7 +146,7 @@ export default class ClinicsController{
             const uniqname = req.params.uniqname;
             const email = req.body.email;
             const newPassword = req.body.new_password;
-            const hash = bcrypt.hashSync(newPassword, salt);
+            const hash = hashCrypt(newPassword);
 
             let transporter = nodemailer.createTransport(smtpTransporter({
                 host: process.env.NODEMAILER_HOST,

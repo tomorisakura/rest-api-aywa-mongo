@@ -1,46 +1,10 @@
 import Pets from '../model/pets.mjs';
 import { Uniqpet } from '../helpers/generate.mjs';
-import multer from 'multer';
+import admin from '../helpers/firebase.service.mjs';
+import { upload, __dirname } from '../helpers/multer.mjs';
 import path from 'path';
 import fs from 'fs';
-import {dirname} from 'path';
-import {fileURLToPath} from 'url';
 import sharp from 'sharp';
-import admin from '../helpers/firebase.service.mjs';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const fbStorage = admin.storage().bucket();
-
-const storage = multer.diskStorage({
-    destination : __dirname+'/../public/images',
-    filename : (req, file, cb) => {
-        cb(null, file.fieldname + '-' +Date.now() + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({
-    storage: storage,
-    filetypes : /jpeg|jpg|png|gif/
-}).array('imagePet', 12);
-
-function checkFile(file, cb) {
-    try {
-        // Allowed ext
-        const filetypes = /jpeg|jpg|png|gif/;
-        // Check ext
-        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-        // Check mime
-        const mimetype = filetypes.test(file.mimetype);
-    
-        if(mimetype && extname){
-        return cb(null,true);
-        } else {
-        cb('Error: Images Only!');
-        }
-    } catch (error) {
-        throw error;
-    }
-}
 
 export default class PetsController {
 
@@ -159,7 +123,7 @@ export default class PetsController {
                     console.log(`${imageOne}, ${imageTwo}`);
                     const pathImageOne = path.join(__dirname + `/../public/images/${imageOne}`);
                     const pathImageTwo = path.join(__dirname + `/../public/images/${imageTwo}`);
-
+                    //comp image
                     const compImageOne = path.join(__dirname +`/../public/compressed/${imageOne}`);
                     const compImageTwo = path.join(__dirname +`/../public/compressed/${imageTwo}`);
 
@@ -202,10 +166,11 @@ export default class PetsController {
                             if(err) console.log(`err : ${err}`);
                             console.log(`image two : ${info}`);
                         });
-
                     }, 2000);
 
                     try {
+                        const fbStorage = admin.storage().bucket();
+
                         const response = new Pets(createObj);
                         response.save();
 
@@ -224,7 +189,6 @@ export default class PetsController {
                             });
                             console.log(`Saved ${result.filename}`);
                         });
-                        console.log("saved");
 
                         res.status(200).send({
                             method : req.method,
@@ -338,7 +302,7 @@ export default class PetsController {
             return Promise.all([findPet, deletePet])
             .then((result) => {
 
-                result[0].picture.forEach(data => {
+                result[0].picture.map(data => {
                     const originalPath = path.join(__dirname + `/../public/${data.pic_url}`);
                     const compressedPath = path.join(__dirname + `/../public/${data.pic_compress}`);
 

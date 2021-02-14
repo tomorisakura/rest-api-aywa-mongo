@@ -13,7 +13,6 @@ route.get('/', (req, res) => {
         method: req.method,
         message: "Wellcome to Aywa Pet Service 🦊"
     });
-    res.end();
 });
 
 route.get('/api', (req, res) => {
@@ -21,8 +20,9 @@ route.get('/api', (req, res) => {
         method: req.method,
         message: "unch, this service is private dude h3h3 🦊"
     });
-    res.end();
 });
+
+route.post('/api/users/pw', new UsersController().dummyTest);
 
 //SAFE ROUTE
 route.get('/api/users/auth/verify', new UsersController().findEmail);

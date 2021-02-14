@@ -1,13 +1,19 @@
 import dotenv from 'dotenv';
 import Users from '../model/users.mjs';
 import { Uniqname } from '../helpers/generate.mjs';
-import bcrypt from 'bcrypt';
+import { hashCrypt, compareCrypt } from '../helpers/crypt.mjs';
 import jwt from 'jsonwebtoken';
 dotenv.config();
 
-const salt = bcrypt.genSaltSync(10);
-
 export default class UsersController{
+
+    dummyTest(req, res) {
+        const password = req.body.password;
+        const hash = hashCrypt(password);
+        res.send({
+            hash : hash
+        });
+    }
     
      async getUsers(req, res) {
         try {
@@ -30,7 +36,7 @@ export default class UsersController{
             const password = req.body.password;
             const username = Uniqname(name, phone);
             const address = req.body.alamat;
-            const hash = bcrypt.hashSync(password, salt);
+            const hash = hashCrypt(password);
             const email = req.body.email;
             const uid = req.body.uid;
             console.log(username);
@@ -53,6 +59,7 @@ export default class UsersController{
                 method : req.method,
                 status : true,
                 code : 200,
+                acc_token: process.env.ACCESS_TOKEN_KEY,
                 token : `Grevi ${token}`,
                 results : response
             });
@@ -70,7 +77,7 @@ export default class UsersController{
                 username : username
             }).then(result => {
                 const dbPassword = result[0].password
-                const match = bcrypt.compareSync(password, dbPassword);
+                const match = compareCrypt(password, dbPassword);
                 if(match) {
                     console.log('Login Berhasil');
                     res.send({
@@ -138,6 +145,7 @@ export default class UsersController{
                         method : req.method,
                         status : true,
                         code : 200,
+                        acc_token: process.env.ACCESS_TOKEN_KEY,
                         token : `Grevi ${token}`,
                         result : result
                     });

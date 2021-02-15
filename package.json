@@ -4,7 +4,8 @@
   "description": "rest api aywa with mongo",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node index.mjs",
+    "dev": "nodemon index.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Reski Arianto",

@@ -1,3 +1,5 @@
+import jwt from 'jsonwebtoken';
+
 export function Uniqname (name, number){
     try {
         const char = name.split(' ');
@@ -40,4 +42,8 @@ export function Uniqpet(name) {
     } catch (error) {
         throw error;
     }
+}
+
+export function generateAccToken(data) {
+    return jwt.sign(data, process.env.ACCESS_TOKEN_KEY);
 }

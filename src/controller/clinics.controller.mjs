@@ -1,9 +1,8 @@
 import dotenv from 'dotenv';
 import Clincs from '../model/clinics.mjs';
 import nodemailer from 'nodemailer';
-import jwt from 'jsonwebtoken';
 import smtpTransporter from 'nodemailer-smtp-transport';
-import { Uniqname } from '../helpers/generate.mjs';
+import { Uniqname, generateAccToken } from '../helpers/generate.mjs';
 import { hashCrypt, compareCrypt } from '../helpers/crypt.mjs';
 dotenv.config();
 
@@ -46,7 +45,7 @@ export default class ClinicsController{
             });
             response.save();
 
-            const token = jwt.sign({ payload : response.uniqname }, process.env.ACCESS_TOKEN_KEY, { expiresIn: '9999 years' });
+            const token = generateAccToken({ payload : response.uniqname });
             res.status(200).json({
                 method : req.method,
                 status : true,
@@ -103,7 +102,7 @@ export default class ClinicsController{
             }).then(result => {
                 const dbPassword = result[0].password;
                 const match = compareCrypt(password, dbPassword);
-                const token = jwt.sign({ payload : result[0].uniqname }, process.env.ACCESS_TOKEN_KEY, { expiresIn: '9999 years' });
+                const token = generateAccToken({ payload : result[0].uniqname });
                 if(match) {
                     res.status(200).json({
                         method : req.method,
@@ -239,35 +238,6 @@ export default class ClinicsController{
         } catch (error) {
             throw error;
         }
-    }
-
-    sendDummyMail(req, res) {
-        let transporter = nodemailer.createTransport(smtpTransporter({
-            host: process.env.NODEMAILER_HOST,
-            secure: false,
-            tls: {
-                rejectUnauthorized: false
-            },
-            port: 587,
-            auth: {
-                user: process.env.NODEMAILER_SMTP,
-                pass: process.env.NODEMAILER_KEY
-            }
-        }));
-
-        let mailOptions = {
-            from: process.env.NODEMAILER_SMTP,
-            to: 'resky67@gmail.com',
-            subject: 'Reset Password Akun Aywa Admin',
-            text: `Hallo...`
-        };
-
-        transporter.sendMail(mailOptions, (err, response) => {
-            if(err) console.log(err);
-            console.log(`response : ${response}`);
-        });
-
-        res.end();
     }
      
 }

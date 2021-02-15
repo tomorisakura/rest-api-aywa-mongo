@@ -1,19 +1,11 @@
 import dotenv from 'dotenv';
 import Users from '../model/users.mjs';
-import { Uniqname } from '../helpers/generate.mjs';
+import Token from '../model/token.mjs';
+import { Uniqname, generateAccToken } from '../helpers/generate.mjs';
 import { hashCrypt, compareCrypt } from '../helpers/crypt.mjs';
-import jwt from 'jsonwebtoken';
 dotenv.config();
 
 export default class UsersController{
-
-    dummyTest(req, res) {
-        const password = req.body.password;
-        const hash = hashCrypt(password);
-        res.send({
-            hash : hash
-        });
-    }
     
      async getUsers(req, res) {
         try {
@@ -54,13 +46,12 @@ export default class UsersController{
             const response = new Users(createObj);
             response.save();
 
-            const token = jwt.sign({ payload : response.email }, process.env.ACCESS_TOKEN_KEY, { expiresIn: '9999 years' });
+            const accToken = generateAccToken({ payload : response.username });
             res.status(200).send({
                 method : req.method,
                 status : true,
                 code : 200,
-                acc_token: process.env.ACCESS_TOKEN_KEY,
-                token : `Grevi ${token}`,
+                token : `Grevi ${accToken}`,
                 results : response
             });
         } catch (error) {
@@ -140,13 +131,14 @@ export default class UsersController{
                 console.log(result);
                 if (result !== null) {
                     console.log(`logged ${result.name}`);
-                    const token = jwt.sign({ payload : result.email }, process.env.ACCESS_TOKEN_KEY, { expiresIn: '9999 years' });
+                    const accessToken = generateAccToken({ payload: result.username });
+                    //const refreshToken = jwt.sign({ payload : result.email }, process.env.REFRESH_TOKEN_KEY);
+                    //new Token({ token: refreshToken, role : 'adopter' }).save();
                     res.send({
                         method : req.method,
                         status : true,
                         code : 200,
-                        acc_token: process.env.ACCESS_TOKEN_KEY,
-                        token : `Grevi ${token}`,
+                        token : `Grevi ${accessToken}`,
                         result : result
                     });
                 } else {

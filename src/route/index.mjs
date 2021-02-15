@@ -11,7 +11,8 @@ const route = express.Router();
 route.get('/', (req, res) => {
     res.send({
         method: req.method,
-        message: "Wellcome to Aywa Pet Service 🦊"
+        message: "Wellcome to Aywa Pet Service 🦊",
+        version: '1.0.1 - Alpha'
     });
 });
 
@@ -22,21 +23,20 @@ route.get('/api', (req, res) => {
     });
 });
 
-route.post('/api/users/pw', new UsersController().dummyTest);
+//route.post('/api/auth/token', new Auth().refreshToken);
 
 //SAFE ROUTE
 route.get('/api/users/auth/verify', new UsersController().findEmail);
 route.post('/api/users/post', new UsersController().createUsers);
 route.get('/api/users/login', new UsersController().login);
-route.get('/api/clinics/sendmail', new ClinicsController().sendDummyMail);
 
 route.post('/api/clinics/login', new ClinicsController().login);
 route.post('/api/clinics/post', new ClinicsController().createClinics);
 route.patch('/api/clinics/reset-pw/:uniqname', new ClinicsController().resetPassword);
 
-route.get('/api/users/get', new UsersController().getUsers);
 
 //AUTHORIZED ROUTE
+route.get('/api/users/get', new Auth().authorization, new UsersController().getUsers);
 route.delete('/api/users/delete/:username', new Auth().authorization, new UsersController().deleteUser);
 
 route.get('/api/clinics/get', new Auth().authorization, new ClinicsController().get);

@@ -1,8 +1,8 @@
 {
   "name": "aywa-mongo-coba",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "rest api aywa with mongo",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
     "start": "node index.mjs",
     "dev": "nodemon index.mjs",

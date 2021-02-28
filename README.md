@@ -1,9 +1,11 @@
 ## Aywa service
-Aywa Pet service for pet adopt 🐈
+
+![](https://github.com/tomorisakura/rest-api-aywa-mongo/blob/dev/assets/preview_server.png)
 
 **status : Maintained** 🚀
 
 ---
+Aywa Pet service for pet adopt 🐈
 
 this service dedicated for this app [Aywa Pet](https://github.com/tomorisakura/aywa-pet) and [Aywa Admin](https://github.com/tomorisakura/aywa-admin)
  
@@ -11,7 +13,7 @@ this service dedicated for this app [Aywa Pet](https://github.com/tomorisakura/a
 
 - Clone
 - ```npm install```
-- ```nodemon index.js```
+- ```npm run dev```
 
 **feature**
 

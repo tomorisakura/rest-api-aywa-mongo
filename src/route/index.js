@@ -46,6 +46,7 @@ route.patch('/api/pet/update/:id', new auth().authorization, new petsController(
 route.delete('/api/pet/delete/:id', new auth().authorization, new petsController().deletePets);
 route.get('/api/pet/get-by-clinic/:id', new auth().authorization, new petsController().getPetByClinic);
 route.get('/api/pet/get-pet/:id', new auth().authorization, new petsController().findPets);
+route.get('/api/pet/search', new auth().authorization, new petsController().findPetByRas);
 
 route.get('/api/types/get', new auth().authorization, new typesController().get);
 route.post('/api/types/post', new auth().authorization, new typesController().insertTypes);

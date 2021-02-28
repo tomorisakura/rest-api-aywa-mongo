@@ -277,7 +277,35 @@ class PetsController extends Generate {
         } catch (error) {
             throw error;
         }
-    } 
+    }
+
+    findPetByRas(req, res) {
+        try {
+            const ras = req.query.ras;
+
+            return Pets.find({ ras_peliharaan: { $regex: ras, $options: 'i' } })
+            .then(result => {
+                res.send({
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    result : result
+                });
+            })
+            .catch(err => {
+                res.json({
+                    method : req.method,
+                    status : false,
+                    code : 202,
+                    message: `Promise err : ${err}`,
+                    result : null
+                });
+            })
+
+        } catch (error) {
+            throw error;
+        }
+    }
 
     deletePets = (req, res) => {
         try {

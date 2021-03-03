@@ -24,11 +24,6 @@ const users = mongoose.Schema({
         required : false,
         default : null
     },
-    password : {
-        type : String,
-        required : false,
-        default : null
-    },
     uid_auth : {
         type: String,
         required : true

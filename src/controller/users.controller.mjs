@@ -1,8 +1,6 @@
 import dotenv from 'dotenv';
 import Users from '../model/users.mjs';
-import Token from '../model/token.mjs';
 import { Uniqname, generateAccToken } from '../helpers/generate.mjs';
-import { hashCrypt, compareCrypt } from '../helpers/crypt.mjs';
 dotenv.config();
 
 export default class UsersController{
@@ -25,10 +23,8 @@ export default class UsersController{
         try {
             const name = req.body.name;
             const phone = req.body.no_hp;
-            const password = req.body.password;
             const username = Uniqname(name, phone);
             const address = req.body.alamat;
-            const hash = hashCrypt(password);
             const email = req.body.email;
             const uid = req.body.uid;
             console.log(username);
@@ -38,7 +34,6 @@ export default class UsersController{
                 username : username,
                 no_hp : phone,
                 alamat : address,
-                password : hash,
                 email: email,
                 uid_auth: uid
             };
@@ -59,35 +54,31 @@ export default class UsersController{
         }
     }
 
-    login(req, res) {
+    updateUser(req, res) {
         try {
-            const username = req.body.username;
-            const password = req.body.password;
+            const username = req.params.username;
+            const phone = req.body.no_hp;
+            const address = req.body.alamat;
 
-            return Users.find({
-                username : username
-            }).then(result => {
-                const dbPassword = result[0].password
-                const match = compareCrypt(password, dbPassword);
-                if(match) {
-                    console.log('Login Berhasil');
-                    res.send({
-                        method : req.method,
-                        status : true,
-                        code : 200,
-                        message : 'login success',
-                        token : 'jwt-token'
-                    });
-                } else {
-                    res.send({
-                        method : req.method,
-                        status : false,
-                        code : 202,
-                        message : 'login failed, please make sure you remember a password'
-                    });
-                }
+            return Users.updateOne({ username: username }, { no_hp: phone, alamat: address })
+            .then(result => {
+                res.status(200).json({ 
+                    method : req.method,
+                    status : true,
+                    code : 200,
+                    message : 'success update data',
+                    result: result
+                });
+            })
+            .catch(err => {
+                res.status(404).json({
+                    method : req.method,
+                    status : false,
+                    code : 404,
+                    message : 'failed update data',
+                    response : err
+                });
             });
-
         } catch (error) {
             throw error;
         }

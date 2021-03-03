@@ -12,7 +12,7 @@ route.get('/', (req, res) => {
     res.send({
         method: req.method,
         message: "Wellcome to Aywa Pet Service 🦊",
-        version: '1.0.1 - Alpha'
+        version: '1.0.1 - Alpha 1'
     });
 });
 
@@ -28,7 +28,6 @@ route.get('/api', (req, res) => {
 //SAFE ROUTE
 route.get('/api/users/auth/verify', new UsersController().findEmail);
 route.post('/api/users/post', new UsersController().createUsers);
-route.get('/api/users/login', new UsersController().login);
 
 route.post('/api/clinics/login', new ClinicsController().login);
 route.post('/api/clinics/post', new ClinicsController().createClinics);
@@ -38,6 +37,7 @@ route.patch('/api/clinics/reset-pw/:uniqname', new ClinicsController().resetPass
 //AUTHORIZED ROUTE
 route.get('/api/users/get', new Auth().authorization, new UsersController().getUsers);
 route.delete('/api/users/delete/:username', new Auth().authorization, new UsersController().deleteUser);
+route.patch('/api/users/update/:username', new Auth().authorization, new UsersController().updateUser);
 
 route.get('/api/clinics/get', new Auth().authorization, new ClinicsController().get);
 route.patch('/api/clinics/update/:uniqname', new Auth().authorization, new ClinicsController().updateClinics);
@@ -50,6 +50,7 @@ route.patch('/api/pet/update/:id', new Auth().authorization, new PetsController(
 route.delete('/api/pet/delete/:id', new Auth().authorization, new PetsController().deletePets);
 route.get('/api/pet/get-by-clinic/:id', new Auth().authorization, new PetsController().getPetByClinic);
 route.get('/api/pet/get-pet/:id', new Auth().authorization, new PetsController().findPets);
+route.get('/api/pet/search', new Auth().authorization, new PetsController().findPetByRas);
 
 route.get('/api/types/get', new Auth().authorization, new TypesController().get);
 route.post('/api/types/post', new Auth().authorization, new TypesController().insertTypes);
@@ -67,8 +68,8 @@ route.get('/api/keep/find-cancel', new Auth().authorization, new KeepController(
 route.patch('/api/keep/cancel/:id', new Auth().authorization, new KeepController().cancelKeep);
 route.get('/api/keep/success/user/:id_user', new Auth().authorization, new KeepController().findUserKeepSuccess);
 
-route.get('/api/province', new Auth().authorization, new ProvinceController().getProvince);
-route.get('/api/kabupaten/:id', new Auth().authorization, new ProvinceController().getKabupaten);
-route.get('/api/kecamatan/:id', new Auth().authorization, new ProvinceController().getKecamatan);
+route.get('/api/province', new ProvinceController().getProvince);
+route.get('/api/kabupaten/:id', new ProvinceController().getKabupaten);
+route.get('/api/kecamatan/:id', new ProvinceController().getKecamatan);
 
 export default route;

@@ -14,13 +14,13 @@ this service dedicated for this app [Aywa Pet](https://github.com/tomorisakura/a
 
 - Clone
 - ```npm install```
-- ```nodemon index.js```
+- ```npm run dev```
 
 **feature**
 
 - [x] Hashing
 - [x] JWT (still waiting for fixed data)
-- [x] Firebase (fcm and auth on android)
+- [x] Firebase (fcm and auth on android and storage (backup pet photos))
 - [x] Nodemailer (for send new password / forget password)
 - [x] Sharp (for image compressed size)
 

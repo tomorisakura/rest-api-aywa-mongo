@@ -30,7 +30,10 @@ class PetsController extends Generate {
                 status : true
             })
             .populate('types')
-            .populate('clinic');
+            .populate({
+                path : 'clinic',
+                select : 'clinic_name email no_hp alamat'
+            })
             return res.send({
                 method : req.method,
                 status : true,
@@ -284,6 +287,11 @@ class PetsController extends Generate {
             const ras = req.query.ras;
 
             return Pets.find({ ras_peliharaan: { $regex: ras, $options: 'i' } })
+            .populate('types')
+            .populate({
+                path : 'clinic',
+                select : 'clinic_name email no_hp alamat'
+            })
             .then(result => {
                 res.send({
                     method : req.method,
